@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.react-resizable {
+  position: relative !important;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  background-color: transparent;
+  cursor: se-resize;
+  z-index: 30;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.editor-mode .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-resizable-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  transition: transform 0.2s;
+}
+
+.react-resizable-handle:hover::after {
+  transform: scale(1.2);
+}
+
+.canvas-component {
+  position: absolute !important;
+  user-select: none;
+  touch-action: none;
+  z-index: 10;
+}
+
+.component-content {
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.component-content > * {
+  pointer-events: auto;
+}
+
+.drag-handle {
+  cursor: move;
+  touch-action: none;
+  z-index: 20;
+}
+
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#canvas {
+  z-index: 1;
+  position: relative;
+}
+
+/* Modal and overlay styles */
+.modal-overlay {
+  z-index: 1000;
+}
+
+.modal-content {
+  z-index: 1001;
+}
