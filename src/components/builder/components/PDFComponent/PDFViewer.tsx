@@ -8,7 +8,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url }) => {
   if (!url) {
     return (
       <div className="flex items-center justify-center h-full w-full bg-gray-50 text-gray-400">
-        Tehere's No PDF URL provided
+        Oh ! Tehere's No PDF URL provided
       </div>
     );
   }
