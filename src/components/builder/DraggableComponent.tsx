@@ -322,10 +322,11 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
               <ComponentActions componentId={component.id} stopPropagation={stopPropagation} />
             </div>
           )}
-          <div 
-            className={`component-content ${isEditorMode ? 'p-4 pt-12' : 'p-4'}`}
+           <div 
+            className="component-content"
             style={{
-              maxHeight: isEditorMode ? 'calc(100% - 48px)' : '100%',
+              height: '100%',
+              padding: isEditorMode ? '48px 16px 16px 16px' : '16px',
               overflowY: 'auto'
             }}
           >
