@@ -200,7 +200,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
 
       case 'chart':
         return (
-          <div style={{ width: '100%', height: component.size.height - 80 }}>
+          <div style={{ 
+            width: '100%', 
+            height: isEditorMode ? 'calc(100% - 16px)' : '100%'
+          }}>
             {renderChart()}
           </div>
         );
@@ -319,7 +322,14 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
               <ComponentActions componentId={component.id} stopPropagation={stopPropagation} />
             </div>
           )}
-          <div className={`component-content ${isEditorMode ? 'p-4 pt-12' : 'p-4'}`}>
+          <div 
+            className="component-content"
+            style={{
+              height: '100%',
+              padding: isEditorMode ? '48px 16px 16px 16px' : '16px',
+              overflowY: 'auto'
+            }}
+          >
             {renderContent()}
           </div>
         </div>
