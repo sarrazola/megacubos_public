@@ -35,7 +35,7 @@ const Settings = () => {
       setIsEditing(false);
     } catch (err) {
       setError('Failed to update company name');
-      console.error('Error updating company name:', err);
+      console.error('Error at updating company name:', err);
     }
   };
 
