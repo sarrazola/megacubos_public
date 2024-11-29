@@ -8,24 +8,27 @@ interface DragPreviewProps {
 }
 
 const DragPreview: React.FC<DragPreviewProps> = ({ component, currentOffset, isDraggingExisting }) => {
-  const previewComponent = {
-    ...component,
-    isMoving: isDraggingExisting
-  };
+  const previewComponent = isDraggingExisting 
+    ? {
+        ...component,
+        position: { x: 0, y: 0 },
+      }
+    : {
+        id: `preview-${component.type}`,
+        type: component.type,
+        position: { x: 0, y: 0 },
+        size: {
+          width: 400,
+          height: component.type === 'scorecard' ? 120 : 300
+        },
+        properties: component.properties || {}
+      };
 
   return (
-    <div
-      className="drag-preview"
-      data-is-moving={isDraggingExisting}
-      style={{
-        position: 'fixed',
-        left: currentOffset.x,
-        top: currentOffset.y,
-        transform: 'translate(-50%, -50%)',
-        pointerEvents: 'none',
-        zIndex: 1000,
-      }}
-    >
+    <div className="drag-preview" style={{ 
+      width: previewComponent.size?.width,
+      height: previewComponent.size?.height
+    }}>
       <DraggableComponent
         component={previewComponent}
         isEditorMode={true}

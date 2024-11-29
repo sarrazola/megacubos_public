@@ -5,8 +5,10 @@ import { useCanvasesStore } from '../../store/useCanvasesStore';
 import DraggableComponent from './DraggableComponent';
 
 const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
-  const { currentCanvasId } = useCanvasesStore();
+  const canvasRef = React.useRef<HTMLDivElement>(null);
   const { components, addComponent, updateComponentPosition } = useCanvasStore();
+  const { currentCanvasId } = useCanvasesStore();
+  
   const currentComponents = components[currentCanvasId] || [];
 
   const getDefaultProperties = (type: string) => {
@@ -76,26 +78,38 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'MOVE_COMPONENT'],
-    drop: (item: { id?: string; type: string }, monitor) => {
+    drop: (item: any, monitor) => {
       const offset = monitor.getClientOffset();
-      if (offset) {
-        const canvasRect = document.getElementById('canvas')?.getBoundingClientRect();
-        if (canvasRect) {
-          const x = offset.x - canvasRect.left;
-          const y = offset.y - canvasRect.top;
-          
-          if (item.id) {
-            updateComponentPosition(currentCanvasId, item.id, { x, y });
-          } else {
-            addComponent(currentCanvasId, {
-              id: `${item.type}-${Date.now()}`,
-              type: item.type,
-              position: { x, y },
-              size: { width: 400, height: item.type === 'scorecard' ? 120 : 300 },
-              properties: getDefaultProperties(item.type)
-            });
-          }
-        }
+      const initialOffset = monitor.getInitialClientOffset();
+      
+      if (!offset || !canvasRef.current) return;
+
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      
+      if (monitor.getItemType() === 'MOVE_COMPONENT') {
+        // For existing components, calculate position based on the drag delta
+        const delta = monitor.getDifferenceFromInitialOffset();
+        const originalPos = item.position;
+        
+        updateComponentPosition(currentCanvasId, item.id, {
+          x: originalPos.x + delta.x,
+          y: originalPos.y + delta.y
+        });
+      } else {
+        // For new components from the palette
+        const x = offset.x - canvasRect.left;
+        const y = offset.y - canvasRect.top;
+        
+        addComponent(currentCanvasId, {
+          id: `${item.type}-${Date.now()}`,
+          type: item.type,
+          position: { x, y },
+          size: { 
+            width: 400, 
+            height: item.type === 'scorecard' ? 120 : 300 
+          },
+          properties: item.properties || {}
+        });
       }
     },
     collect: (monitor) => ({
@@ -103,17 +117,30 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
     }),
   }), [currentCanvasId]);
 
+  // Combine refs using callback ref
+  const setRefs = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      canvasRef.current = element;
+      drop(element);
+    },
+    [drop]
+  );
+
   return (
     <div
       id="canvas"
-      ref={drop}
+      ref={setRefs}
       className={`relative bg-gray-100 rounded-lg overflow-auto ${
         isOver ? 'border-2 border-blue-400' : 'border-2 border-transparent'
       } ${isEditorMode ? 'editor-mode' : ''}`}
       style={{ height: 'calc(100vh - 6rem)' }}
     >
       {currentComponents.map((component) => (
-        <DraggableComponent key={component.id} component={component} isEditorMode={isEditorMode} />
+        <DraggableComponent 
+          key={component.id} 
+          component={component} 
+          isEditorMode={isEditorMode} 
+        />
       ))}
       {currentComponents.length === 0 && isEditorMode && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-400">

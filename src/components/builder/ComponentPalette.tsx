@@ -10,14 +10,92 @@ interface DraggableComponentProps {
 }
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, label }) => {
+  const getInitialData = (type: string) => {
+    switch (type) {
+      case 'table':
+        return {
+          data: [
+            {
+              "id": 1,
+              "name": "John Doe",
+              "email": "john@example.com",
+              "status": "Active"
+            },
+            {
+              "id": 2,
+              "name": "Jane Smith",
+              "email": "jane@example.com",
+              "status": "Inactive"
+            },
+            {
+              "id": 3,
+              "name": "Bob Johnson",
+              "email": "bob@example.com",
+              "status": "Active"
+            }
+          ],
+          showActions: true,
+          actionColumnLabel: 'Actions',
+          actionButtonLabel: 'View'
+        };
+      case 'chart':
+        return {
+          data: [
+            {
+              "name": "Jan",
+              "value": 400
+            },
+            {
+              "name": "Feb",
+              "value": 300
+            },
+            {
+              "name": "Mar",
+              "value": 600
+            },
+            {
+              "name": "Apr",
+              "value": 800
+            },
+            {
+              "name": "May",
+              "value": 500
+            }
+          ],
+          chartType: 'line'
+        };
+      case 'text':
+        return { text: 'Sample text content' };
+      case 'scorecard':
+        return { 
+          label: 'Total Revenue',
+          value: '$50,000',
+          comparison: 12.5
+        };
+      case 'button':
+        return {
+          label: 'Click me',
+          url: '#',
+          backgroundColor: '#3b82f6',
+          textColor: '#ffffff'
+        };
+      case 'pdf':
+        return { url: 'https://example.com/sample.pdf' };
+      case 'image':
+        return { 
+          url: 'https://via.placeholder.com/400x300',
+          alt: 'Sample image'
+        };
+      default:
+        return {};
+    }
+  };
+
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: 'COMPONENT',
-    item: (monitor) => {
-      const offset = monitor.getClientOffset();
-      return {
-        type,
-        initialOffset: offset,
-      };
+    item: {
+      type,
+      properties: getInitialData(type)
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),

@@ -1,8 +1,6 @@
 import React from 'react';
 import { useDragLayer } from 'react-dnd';
 import DragPreview from './DragPreview';
-import { useCanvasStore } from '../../store/useCanvasStore';
-import { useCanvasesStore } from '../../store/useCanvasesStore';
 
 const CustomDragLayer = () => {
   const { itemType, isDragging, item, currentOffset } = useDragLayer((monitor) => ({
@@ -12,42 +10,34 @@ const CustomDragLayer = () => {
     isDragging: monitor.isDragging(),
   }));
 
-  const { components } = useCanvasStore();
-  const { currentCanvasId } = useCanvasesStore();
-
   if (!isDragging || !currentOffset) {
     return null;
   }
 
-  let previewComponent;
-  const isDraggingExisting = itemType === 'MOVE_COMPONENT';
-
-  if (isDraggingExisting) {
-    const component = components[currentCanvasId]?.find(comp => comp.id === item.id);
-    if (component) {
-      previewComponent = {
-        ...component,
-        position: { x: 0, y: 0 },
-      };
-    }
-  } else {
-    previewComponent = {
-      id: 'preview',
-      type: item.type,
-      position: { x: 0, y: 0 },
-      size: { width: 400, height: item.type === 'scorecard' ? 120 : 300 },
-      properties: {}
-    };
-  }
-
-  if (!previewComponent) return null;
-
   return (
-    <DragPreview
-      component={previewComponent}
-      currentOffset={currentOffset}
-      isDraggingExisting={isDraggingExisting}
-    />
+    <div style={{
+      position: 'fixed',
+      pointerEvents: 'none',
+      zIndex: 100,
+      left: 0,
+      top: 0,
+      width: '100%',
+      height: '100%'
+    }}>
+      <div style={{
+        position: 'absolute',
+        left: currentOffset.x,
+        top: currentOffset.y,
+        transform: 'none',
+        opacity: 0.8,
+      }}>
+        <DragPreview
+          component={item}
+          currentOffset={currentOffset}
+          isDraggingExisting={itemType === 'MOVE_COMPONENT'}
+        />
+      </div>
+    </div>
   );
 };
 
