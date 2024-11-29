@@ -58,7 +58,8 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
           value: '$12,345',
           showComparison: true,
           change: '+12.5',
-          iconBackground: '#EBF5FF'
+          iconBackground: '#EBF5FF',
+          selectedIcon: 'dollar'
         };
       case 'pdf':
         return {
