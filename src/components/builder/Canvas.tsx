@@ -108,7 +108,7 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
       id="canvas"
       ref={drop}
       className={`relative bg-gray-100 rounded-lg overflow-auto ${
-        isOver ? 'border-2 border-blue-400' : 'border-2 border-transparent'
+      className={`relative bg-gray-100 rounded-lg overflow-auto ${isOver ? 'border-2 border-green-400' : 'border-2 border-transparent'
       } ${isEditorMode ? 'editor-mode' : ''}`}
       style={{ height: 'calc(100vh - 6rem)' }}
     >

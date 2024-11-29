@@ -39,7 +39,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onDeleteUser }) => {
               <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  user.role === 'creator' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                  user.role === 'creator' ? 'bg-emerald-100 text-emerald-800' : 'bg-green-100 text-green-800'
                 }`}>
                   {user.role}
                 </span>

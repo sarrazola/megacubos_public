@@ -301,7 +301,6 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
         <div
           className={`relative w-full h-full ${
             isEditorMode ? 'bg-white rounded-lg shadow-lg' : ''
-          } ${selectedComponent === component.id ? 'ring-2 ring-blue-500' : ''}`}
         >
           {isEditorMode && (
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-2 border-b">

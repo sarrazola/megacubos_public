@@ -11,7 +11,7 @@ interface ButtonComponentProps {
 const ButtonComponent: React.FC<ButtonComponentProps> = ({
   label,
   url,
-  backgroundColor = '#3b82f6',
+  backgroundColor = '#16a34a',
   textColor = '#ffffff',
   isEditorMode = false,
 }) => {

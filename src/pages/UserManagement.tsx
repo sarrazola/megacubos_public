@@ -58,7 +58,7 @@ const UserManagement = () => {
         <h1 className="text-2xl font-semibold text-gray-900">Users</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           <UserPlus className="h-4 w-4" />
           Add User
