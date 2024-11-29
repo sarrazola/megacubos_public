@@ -14,9 +14,9 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
       case 'table':
         return {
           data: [
-            { id: 1, name: 'John Doe', email: 'john@example.com', status: 'Active' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com', status: 'Inactive' },
-            { id: 3, name: 'Bob Johnson', email: 'bob@example.com', status: 'Active' }
+            { id: 1, name: 'Juan Pérez', email: 'juan@example.com', status: 'Active' },
+            { id: 2, name: 'María García', email: 'maria@example.com', status: 'Inactive' },
+            { id: 3, name: 'Carlos Rodríguez', email: 'carlos@example.com', status: 'Active' }
           ],
           showActions: true,
           actionButtonLabel: 'View',
