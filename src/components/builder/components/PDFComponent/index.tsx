@@ -8,7 +8,7 @@ const PDFComponent: React.FC<PDFComponentProps> = ({ url }) => {
   if (!url) {
     return (
       <div className="flex items-center justify-center h-full w-full bg-gray-50 text-gray-400">
-        No PDF URL provided
+        No PDF
       </div>
     );
   }
