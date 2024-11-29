@@ -1,12 +1,31 @@
 import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, AlertCircle, BarChart2, Box, 
+  DollarSign, Heart, LineChart, Package, ShoppingBag, ShoppingCart, 
+  Star, Truck, Users, Zap } from 'lucide-react';
+
+const iconMap = {
+  'activity': Activity,
+  'alert-circle': AlertCircle,
+  'bar-chart': BarChart2,
+  'box': Box,
+  'dollar': DollarSign,
+  'heart': Heart,
+  'line-chart': LineChart,
+  'package': Package,
+  'shopping-bag': ShoppingBag,
+  'shopping-cart': ShoppingCart,
+  'star': Star,
+  'truck': Truck,
+  'users': Users,
+  'zap': Zap,
+};
 
 interface ScorecardComponentProps {
   label: string;
   value: string;
   showComparison?: boolean;
   change?: number;
-  icon?: React.ReactNode;
+  selectedIcon?: keyof typeof iconMap;
   iconBackground?: string;
   isEditorMode?: boolean;
 }
@@ -16,11 +35,12 @@ const ScorecardComponent: React.FC<ScorecardComponentProps> = ({
   value,
   showComparison = false,
   change = 0,
-  icon,
+  selectedIcon = 'dollar',
   iconBackground = '#EBF5FF',
   isEditorMode = false,
 }) => {
   const isPositive = change >= 0;
+  const IconComponent = iconMap[selectedIcon];
 
   return (
     <div className={`flex items-center justify-between p-4 bg-white rounded-lg ${!isEditorMode ? 'shadow-lg' : ''}`}>
@@ -34,16 +54,15 @@ const ScorecardComponent: React.FC<ScorecardComponentProps> = ({
           </div>
         )}
       </div>
-      {icon && (
+      {IconComponent && (
         <div 
-          style={{ 
+          className="p-2 rounded-lg"
+          style={{
             backgroundColor: iconBackground,
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
-            color: '#3B82F6'
+            transition: 'background-color 0.2s ease'
           }}
         >
-          {icon}
+          <IconComponent className="h-5 w-5 text-blue-600" />
         </div>
       )}
     </div>
