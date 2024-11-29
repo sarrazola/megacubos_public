@@ -1,5 +1,6 @@
 import React from 'react';
-import { useDrag } from 'react-dnd';
+import { useDrag, DragPreviewImage } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { Table2, BarChart3, Type, Layout, Square, FileText, Image } from 'lucide-react';
 
 interface DraggableComponentProps {
@@ -9,13 +10,23 @@ interface DraggableComponentProps {
 }
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, label }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: 'COMPONENT',
-    item: { type },
+    item: (monitor) => {
+      const offset = monitor.getClientOffset();
+      return {
+        type,
+        initialOffset: offset,
+      };
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }));
+
+  React.useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
 
   return (
     <div
