@@ -6,6 +6,7 @@ import Canvas from '../components/builder/Canvas';
 import PropertiesPanel from '../components/builder/PropertiesPanel';
 import { useCanvasStore } from '../store/useCanvasStore';
 import { useEditorStore } from '../store/useEditorStore';
+import CustomDragLayer from '../components/builder/CustomDragLayer';
 
 const Builder = () => {
   const selectedComponent = useCanvasStore((state) => state.selectedComponent);
@@ -14,6 +15,7 @@ const Builder = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="p-6">
+        <CustomDragLayer />
         <div className="grid grid-cols-6 gap-6">
           {isEditorMode && (
             <div className="col-span-1">

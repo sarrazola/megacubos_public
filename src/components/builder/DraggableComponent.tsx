@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ResizableBox } from 'react-resizable';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
@@ -25,21 +26,26 @@ import 'react-resizable/css/styles.css';
 interface DraggableComponentProps {
   component: any;
   isEditorMode: boolean;
+  isPreview?: boolean;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEditorMode }) => {
+const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEditorMode, isPreview }) => {
   const { selectComponent, selectedComponent, updateComponentSize, updateComponentPosition } = useCanvasStore();
   const { currentCanvasId } = useCanvasesStore();
 
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: 'MOVE_COMPONENT',
     item: { id: component.id, type: component.type },
     collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+      isDragging: monitor.isDragging(),
     }),
   }));
+
+  React.useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
 
   const handleDragStop = (e: React.DragEvent) => {
     const canvasRect = document.getElementById('canvas')?.getBoundingClientRect();
@@ -276,15 +282,16 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
   return (
     <div
       style={{
-        position: 'absolute',
+        position: isPreview ? 'relative' : 'absolute',
         left: component.position.x,
         top: component.position.y,
         transform: isDragging ? 'scale(1.05)' : 'scale(1)',
-        opacity: isDragging ? 0.5 : 1,
+        opacity: isDragging ? 0 : 1,
         transition: 'transform 0.2s, opacity 0.2s',
+        pointerEvents: isPreview ? 'none' : 'auto',
       }}
       onDragEnd={handleDragStop}
-      onClick={() => isEditorMode && selectComponent(component.id)}
+      onClick={() => isEditorMode && !isPreview && selectComponent(component.id)}
     >
       <ResizableBox
         width={component.size.width}
