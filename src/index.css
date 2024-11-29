@@ -79,3 +79,26 @@
 .modal-content {
   z-index: 1001;
 }
+
+.drag-preview {
+  pointer-events: none !important;
+  cursor: grabbing !important;
+}
+
+.drag-preview * {
+  pointer-events: none !important;
+}
+
+.drag-preview .react-resizable-handle,
+.drag-preview .component-actions {
+  display: none !important;
+}
+
+.drag-preview[data-is-moving="true"] .component-header {
+  display: none !important;
+}
+
+.dragging {
+  opacity: 0;
+  pointer-events: none;
+}
