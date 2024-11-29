@@ -322,7 +322,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
               <ComponentActions componentId={component.id} stopPropagation={stopPropagation} />
             </div>
           )}
-          <div 
+           <div 
             className="component-content"
             style={{
               height: '100%',

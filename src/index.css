@@ -19,7 +19,8 @@
   transition: opacity 0.2s;
 }
 
-.editor-mode .react-resizable-handle {
+/* Only show resize handle when hovering over the component in editor mode */
+.editor-mode .canvas-component:hover .react-resizable-handle {
   opacity: 1;
 }
 
