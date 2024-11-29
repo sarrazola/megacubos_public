@@ -48,7 +48,9 @@
 
 .component-content {
   pointer-events: none;
-  overflow: hidden;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .component-content > * {
