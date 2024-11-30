@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDrag, DragPreviewImage } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { Table2, BarChart3, Type, Layout, Square, FileText, Image } from 'lucide-react';
+import { Table2, BarChart3, Type, Layout, Square, FileText, Image, Map } from 'lucide-react';
 
 interface DraggableComponentProps {
   type: string;
@@ -50,6 +50,7 @@ const ComponentPalette = () => {
     { type: 'button', icon: <Square className="h-5 w-5" />, label: 'Button' },
     { type: 'pdf', icon: <FileText className="h-5 w-5" />, label: 'PDF Viewer' },
     { type: 'image', icon: <Image className="h-5 w-5" />, label: 'Image' },
+    { type: 'map', icon: <Map className="h-5 w-5" />, label: 'Map' },
   ];
 
   return (
