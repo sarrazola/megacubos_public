@@ -32,35 +32,40 @@ const ComponentActions: React.FC<ComponentActionsProps> = ({ componentId, stopPr
           stopPropagation(e);
           setIsOpen(!isOpen);
         }}
-        className="text-gray-400 hover:text-gray-600 p-1"
+        className="p-1 hover:bg-gray-100 rounded"
       >
-        <MoreVertical className="h-4 w-4" />
+        <MoreVertical className="h-4 w-4 text-gray-500" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-          <button
-            onClick={(e) => {
-              stopPropagation(e);
-              duplicateComponent(currentCanvasId, componentId);
-              setIsOpen(false);
-            }}
-            className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-          >
-            <Copy className="h-4 w-4" />
-            Duplicate
-          </button>
-          <button
-            onClick={(e) => {
-              stopPropagation(e);
-              removeComponent(currentCanvasId, componentId);
-              setIsOpen(false);
-            }}
-            className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-50 flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </button>
+        <div 
+          className="absolute right-0 mt-1 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 component-actions-menu" 
+          style={{ zIndex: 1000 }}
+        >
+          <div className="py-1">
+            <button
+              onClick={(e) => {
+                stopPropagation(e);
+                duplicateComponent(currentCanvasId, componentId);
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            >
+              <Copy className="h-4 w-4" />
+              Duplicate
+            </button>
+            <button
+              onClick={(e) => {
+                stopPropagation(e);
+                removeComponent(currentCanvasId, componentId);
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </button>
+          </div>
         </div>
       )}
     </div>

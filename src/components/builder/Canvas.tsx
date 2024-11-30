@@ -89,6 +89,11 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
           url: 'https://images.unsplash.com/photo-1461988320302-91bde64fc8e4?ixid=2yJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1200&h=800&q=80',
           alt: 'Sample Image'
         };
+      case 'map':
+        return {
+          latitude: 51.505,
+          longitude: -0.09
+        };
       default:
         return {};
     }

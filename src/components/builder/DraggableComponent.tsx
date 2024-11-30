@@ -23,6 +23,7 @@ import PDFViewer from './PDFViewer';
 import TableComponent from './TableComponent';
 import ImageComponent from './ImageComponent';
 import 'react-resizable/css/styles.css';
+import MapComponent from './components/MapComponent';
 
 interface DraggableComponentProps {
   component: any;
@@ -299,6 +300,14 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           <ImageComponent
             url={component.properties.url}
             alt={component.properties.alt}
+          />
+        );
+
+      case 'map':
+        return (
+          <MapComponent
+            latitude={component.properties.latitude || 51.505}
+            longitude={component.properties.longitude || -0.09}
           />
         );
 
