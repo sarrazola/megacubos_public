@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Plus } from 'lucide-react';
 import { fetchProducts } from '../../../../services/api/products';
 import Pagination from '../../../common/Pagination';
+import ColumnMenu from '../../../database/ColumnMenu';
+import { deleteColumn, updateTableCell } from '../../../../services/api/database';
 
 interface TableComponentProps {
   data: any[];
-  showActions?: boolean;
-  actionColumnLabel?: string;
-  actionButtonLabel?: string;
   pageSize?: number;
+  onAddColumn?: () => void;
+  tableName?: string;
+  onRefresh?: () => void;
 }
 
 interface SortConfig {
@@ -16,12 +18,18 @@ interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
+interface EditingCell {
+  rowId: number;
+  columnName: string;
+  value: any;
+}
+
 const TableComponent: React.FC<TableComponentProps> = ({
   data: initialData,
-  showActions = true,
-  actionColumnLabel = 'Actions',
-  actionButtonLabel = 'View',
   pageSize = 5,
+  onAddColumn,
+  tableName,
+  onRefresh,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState(initialData);
@@ -29,6 +37,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     key: '',
     direction: 'desc'
   });
+  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
 
   useEffect(() => {
     setData(initialData);
@@ -84,6 +93,52 @@ const TableComponent: React.FC<TableComponentProps> = ({
     );
   };
 
+  const handleDeleteColumn = async (columnName: string) => {
+    if (!tableName) return;
+    
+    if (window.confirm(`Are you sure you want to delete "${columnName}" field? This action cannot be undone`)) {
+      try {
+        await deleteColumn(tableName, columnName);
+        if (onRefresh) onRefresh();
+      } catch (error) {
+        console.error('Error deleting column:', error);
+        alert('Failed to delete column');
+      }
+    }
+  };
+
+  const handleCellClick = (rowId: number, columnName: string, value: any) => {
+    if (columnName === 'id') return; // Don't allow editing of ID column
+    setEditingCell({ rowId, columnName, value });
+  };
+
+  const handleCellUpdate = async () => {
+    if (!editingCell || !tableName) return;
+
+    try {
+      await updateTableCell(
+        tableName,
+        editingCell.rowId,
+        editingCell.columnName,
+        editingCell.value
+      );
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Failed to update cell:', error);
+      alert('Failed to update cell');
+    } finally {
+      setEditingCell(null);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleCellUpdate();
+    } else if (e.key === 'Escape') {
+      setEditingCell(null);
+    }
+  };
+
   if (!currentData.length) {
     return (
       <div className="flex items-center justify-center h-full text-gray-500">
@@ -101,41 +156,63 @@ const TableComponent: React.FC<TableComponentProps> = ({
               {Object.keys(currentData[0]).map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort(header)}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  <div className="flex items-center gap-2">
-                    <span>
-                      {header
-                        .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, (str) => str.toUpperCase())}
-                    </span>
-                    {getSortIcon(header)}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort(header)}>
+                      <span>
+                        {header
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, (str) => str.toUpperCase())}
+                      </span>
+                      {getSortIcon(header)}
+                    </div>
+                    {header !== 'id' && (
+                      <ColumnMenu
+                        columnName={header}
+                        onSort={(direction) => {
+                          setSortConfig({ key: header, direction });
+                        }}
+                        onDelete={() => handleDeleteColumn(header)}
+                      />
+                    )}
                   </div>
                 </th>
               ))}
-              {showActions && (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {actionColumnLabel}
-                </th>
-              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentData.map((row, idx) => (
               <tr key={getRowKey(row, startIndex + idx)}>
-                {Object.values(row).map((cell: any, i: number) => (
-                  <td key={`${getRowKey(row, startIndex + idx)}-col-${i}`} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {cell}
+                {Object.entries(row).map(([columnName, cellValue]) => (
+                  <td
+                    key={`${getRowKey(row, startIndex + idx)}-${columnName}`}
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    onClick={() => handleCellClick(row.id, columnName, cellValue)}
+                  >
+                    {editingCell?.rowId === row.id && 
+                     editingCell?.columnName === columnName ? (
+                      <input
+                        type="text"
+                        value={editingCell.value}
+                        onChange={(e) => 
+                          setEditingCell({
+                            ...editingCell,
+                            value: e.target.value
+                          })
+                        }
+                        onBlur={handleCellUpdate}
+                        onKeyDown={handleKeyDown}
+                        className="w-full px-2 py-1 border rounded"
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 -my-1 rounded">
+                        {cellValue}
+                      </div>
+                    )}
                   </td>
                 ))}
-                {showActions && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>
