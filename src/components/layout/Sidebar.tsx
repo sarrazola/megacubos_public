@@ -93,7 +93,7 @@ const Sidebar = () => {
     <div className="w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 p-4 flex flex-col">
       <div className="flex items-center gap-2 mb-8">
         <img 
-          src="/megacubos-dark.png" 
+          src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/megacubos-dark.png" 
           alt="Megacubos Logo" 
           className="h-6 w-6"
         />
