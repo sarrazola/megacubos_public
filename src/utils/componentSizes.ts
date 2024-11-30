@@ -14,6 +14,8 @@ export const getDefaultSize = (type: string) => {
         return { width: 400, height: 300 };
       case 'image':
         return { width: 400, height: 300 };
+      case 'map':
+        return { width: 600, height: 300 };
       default:
         return { width: 400, height: 300 };
     }

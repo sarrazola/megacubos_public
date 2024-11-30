@@ -105,3 +105,15 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.component-actions-menu {
+  z-index: 1000 !important;
+}
+
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.component-dropdown {
+  z-index: 1000 !important;
+}
