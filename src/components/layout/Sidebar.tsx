@@ -92,7 +92,11 @@ const Sidebar = () => {
   return (
     <div className="w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 p-4 flex flex-col">
       <div className="flex items-center gap-2 mb-8">
-        <PanelLeft className="h-6 w-6" />
+        <img 
+          src="/src/utils/megacubos-dark.png" 
+          alt="Megacubos Logo" 
+          className="h-6 w-6"
+        />
         <span className="text-xl font-bold">Megacubos</span>
       </div>
       
