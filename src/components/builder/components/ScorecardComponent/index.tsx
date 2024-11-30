@@ -36,7 +36,7 @@ const ScorecardComponent: React.FC<ScorecardComponentProps> = ({
   showComparison = false,
   change = 0,
   selectedIcon = 'dollar',
-  iconBackground = '#EBF5FF',
+  iconBackground = '#93C5FD',
   isEditorMode = false,
 }) => {
   const isPositive = change >= 0;
@@ -62,7 +62,7 @@ const ScorecardComponent: React.FC<ScorecardComponentProps> = ({
             transition: 'background-color 0.2s ease'
           }}
         >
-          <IconComponent className="h-5 w-5 text-blue-600" />
+          <IconComponent className="h-5 w-5 text-black-600" />
         </div>
       )}
     </div>

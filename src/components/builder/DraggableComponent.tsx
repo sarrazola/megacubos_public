@@ -4,7 +4,8 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ResizableBox } from 'react-resizable';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
-import { GripVertical, TrendingUp, TrendingDown } from 'lucide-react';
+import { GripVertical, TrendingUp, TrendingDown, Activity, AlertCircle, BarChart2, Box, DollarSign, Heart, LineChart as LineChartIcon, 
+  Package, ShoppingBag, ShoppingCart, Star, Truck, Users, Zap } from 'lucide-react';
 import {
   LineChart, Line,
   BarChart, Bar,
@@ -30,6 +31,23 @@ interface DraggableComponentProps {
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+const iconMap = {
+  'activity': Activity,
+  'alert-circle': AlertCircle,
+  'bar-chart': BarChart2,
+  'box': Box,
+  'dollar': DollarSign,
+  'heart': Heart,
+  'line-chart': LineChartIcon,
+  'package': Package,
+  'shopping-bag': ShoppingBag,
+  'shopping-cart': ShoppingCart,
+  'star': Star,
+  'truck': Truck,
+  'users': Users,
+  'zap': Zap,
+};
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEditorMode, isPreview }) => {
   const { selectComponent, selectedComponent, updateComponentSize, updateComponentPosition } = useCanvasStore();
@@ -243,6 +261,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
       case 'scorecard':
         const metricChange = parseFloat(component.properties.change || '0');
         const isPositive = metricChange >= 0;
+        const IconComponent = iconMap[component.properties.selectedIcon || 'dollar'];
         
         return (
           <div className={`flex items-center justify-between p-4 bg-white rounded-lg ${!isEditorMode ? 'shadow-lg' : ''}`}>
@@ -256,9 +275,15 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
                 </div>
               )}
             </div>
-            {component.properties.icon && (
-              <div className={`p-2 rounded-lg ${component.properties.iconBackground || 'bg-blue-100'}`}>
-                {component.properties.icon}
+            {IconComponent && (
+              <div 
+                className="p-2 rounded-lg"
+                style={{
+                  backgroundColor: component.properties.iconBackground || '#93C5FD',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                <IconComponent className="h-5 w-5 text-black-600" />
               </div>
             )}
           </div>
