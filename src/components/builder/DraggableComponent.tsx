@@ -303,7 +303,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           e.stopPropagation();
           updateComponentSize(currentCanvasId, component.id, { width: size.width, height: size.height });
         }}
-        minConstraints={[200, component.type === 'scorecard' ? 120 : 100]}
+        minConstraints={[
+          component.type === 'button' ? 80 : 200,
+          component.type === 'button' ? 32 : (component.type === 'scorecard' ? 120 : 100)
+        ]}
         maxConstraints={[800, 600]}
         className="canvas-component"
         handle={<div className="react-resizable-handle" />}

@@ -3,6 +3,7 @@ import { useDragLayer } from 'react-dnd';
 import DragPreview from './DragPreview';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
+import { getDefaultSize } from '../../utils/componentSizes';
 
 const CustomDragLayer = () => {
   const { itemType, isDragging, item, currentOffset } = useDragLayer((monitor) => ({
@@ -35,7 +36,7 @@ const CustomDragLayer = () => {
       id: 'preview',
       type: item.type,
       position: { x: 0, y: 0 },
-      size: { width: 400, height: item.type === 'scorecard' ? 120 : 300 },
+      size: getDefaultSize(item.type),
       properties: {}
     };
   }

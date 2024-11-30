@@ -3,6 +3,7 @@ import { useDrop } from 'react-dnd';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import DraggableComponent from './DraggableComponent';
+import { getDefaultSize } from '../../utils/componentSizes';
 
 const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
   const { currentCanvasId } = useCanvasesStore();
@@ -88,11 +89,13 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
           if (item.id) {
             updateComponentPosition(currentCanvasId, item.id, { x, y });
           } else {
+            const defaultSize = getDefaultSize(item.type);
+
             addComponent(currentCanvasId, {
               id: `${item.type}-${Date.now()}`,
               type: item.type,
               position: { x, y },
-              size: { width: 400, height: item.type === 'scorecard' ? 120 : 300 },
+              size: defaultSize,
               properties: getDefaultProperties(item.type)
             });
           }
