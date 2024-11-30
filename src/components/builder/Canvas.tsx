@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
@@ -7,8 +7,26 @@ import { getDefaultSize } from '../../utils/componentSizes';
 
 const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
   const { currentCanvasId } = useCanvasesStore();
-  const { components, addComponent, updateComponentPosition } = useCanvasStore();
+  const { components, addComponent, updateComponentPosition, selectedComponent, removeComponent } = useCanvasStore();
   const currentComponents = components[currentCanvasId] || [];
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isEditorMode) return;
+      
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedComponent) {
+        // Prevent backspace from navigating back
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+        }
+        
+        removeComponent(currentCanvasId, selectedComponent);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditorMode, selectedComponent, currentCanvasId, removeComponent]);
 
   const getDefaultProperties = (type: string) => {
     switch (type) {
