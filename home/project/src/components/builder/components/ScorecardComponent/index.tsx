@@ -38,7 +38,7 @@ const ScorecardComponent: React.FC<ScorecardComponentProps> = ({
         <div 
           className="p-2 rounded-lg"
           style={{
-            backgroundColor: iconBackground || '#EBF5FF',
+            backgroundColor: iconBackground || '#93C5FD',
             transition: 'background-color 0.2s ease'
           }}
         >
