@@ -66,8 +66,8 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
         };
       case 'button':
         return {
-          label: 'Click Me',
-          url: '#',
+          label: 'Button',
+          url: 'https://www.google.com',
           backgroundColor: '#3b82f6',
           textColor: '#ffffff'
         };
@@ -82,7 +82,7 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
         };
       case 'pdf':
         return {
-          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+          url: 'https://alwan.global/wp-content/uploads/2024/06/Tesla-Cybertruck.pdf'
         };
       case 'image':
         return {
