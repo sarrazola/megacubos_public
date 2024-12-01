@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrag, DragPreviewImage } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { Table2, BarChart3, Type, Layout, Square, FileText, Image, Map } from 'lucide-react';
+import { Table2, BarChart3, Type, Layout, Square, FileText, Image, Map, ChevronRight } from 'lucide-react';
 
 interface DraggableComponentProps {
   type: string;
@@ -42,6 +42,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, lab
 };
 
 const ComponentPalette = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const components = [
     { type: 'table', icon: <Table2 className="h-5 w-5" />, label: 'Table' },
     { type: 'chart', icon: <BarChart3 className="h-5 w-5" />, label: 'Chart' },
@@ -54,14 +55,40 @@ const ComponentPalette = () => {
   ];
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <h2 className="text-lg font-semibold mb-4">Components</h2>
-      <div className="space-y-2">
-        {components.map((component) => (
-          <DraggableComponent key={component.type} {...component} />
-        ))}
+    <>
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="md:hidden fixed top-4 right-4 z-30 p-2 bg-white rounded-lg shadow-lg"
+      >
+        <ChevronRight className={`h-5 w-5 transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
+      </button>
+
+      <div className={`
+        fixed right-0 top-0 h-screen bg-gray-50 z-20
+        transition-transform duration-300 ease-in-out
+        ${isCollapsed ? 'translate-x-full' : 'translate-x-0'}
+        md:translate-x-0 md:relative md:h-auto md:shadow-none
+        w-full
+      `}>
+        <div className="p-4">
+          <h2 className="text-lg font-semibold mb-4">Components</h2>
+          <div className="space-y-2">
+            {components.map((component) => (
+              <DraggableComponent key={component.type} {...component} />
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Overlay for mobile */}
+      {!isCollapsed && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10"
+          onClick={() => setIsCollapsed(true)}
+        />
+      )}
+    </>
   );
 };
 
