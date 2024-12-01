@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Database, Server, Globe2, Boxes, Plus, Table2, Trash2 } from 'lucide-react';
+import { Database, Server, Globe2, Boxes, Plus, Table2, Trash2, Pencil } from 'lucide-react';
 import TableBuilder from '../components/database/TableBuilder';
 import DatabaseTable from '../components/database/DatabaseTable';
-import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables, deleteTable } from '../services/api/database';
+import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables, deleteTable, renameTable } from '../services/api/database';
 import DeleteTableModal from '../components/database/DeleteTableModal';
+import RenameTableModal from '../components/database/RenameTableModal';
 
 interface ResourceCard {
   id: string;
@@ -19,6 +20,8 @@ const Resources = () => {
   const [currentTable, setCurrentTable] = useState<string | null>(null);
   const [tables, setTables] = useState<string[]>([]);
   const [tableToDelete, setTableToDelete] = useState<string | null>(null);
+  const [tableToRename, setTableToRename] = useState<string | null>(null);
+  const [newTableName, setNewTableName] = useState('');
 
   const resources: ResourceCard[] = [
     {
@@ -101,6 +104,27 @@ const Resources = () => {
     }
   };
 
+  const handleRenameTable = async (oldName: string, newName: string) => {
+    try {
+      await renameTable(oldName, newName);
+      
+      // Update local state
+      setTables(prevTables => 
+        prevTables.map(table => table === oldName ? newName : table)
+      );
+      
+      // If the table being renamed is currently open, update its name
+      if (currentTable === oldName) {
+        setCurrentTable(newName);
+      }
+      
+      setTableToRename(null);
+    } catch (error) {
+      console.error('Error renaming table:', error);
+      alert(error instanceof Error ? error.message : 'Failed to rename table');
+    }
+  };
+
   if (showTableView) {
     return (
       <div className="p-6">
@@ -148,15 +172,27 @@ const Resources = () => {
           <Table2 className="h-6 w-6 text-blue-500" />
           <h3 className="text-lg font-semibold">{table}</h3>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setTableToDelete(table);
-          }}
-          className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setTableToRename(table);
+              setNewTableName(table);
+            }}
+            className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setTableToDelete(table);
+            }}
+            className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   ))}
@@ -182,6 +218,14 @@ const Resources = () => {
             tableName={tableToDelete}
             onClose={() => setTableToDelete(null)}
             onConfirm={handleDeleteTable}
+          />
+        )}
+
+        {tableToRename && (
+          <RenameTableModal
+            tableName={tableToRename}
+            onClose={() => setTableToRename(null)}
+            onConfirm={handleRenameTable}
           />
         )}
       </div>

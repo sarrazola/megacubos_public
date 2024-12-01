@@ -359,4 +359,34 @@ export const deleteTable = async (tableName: string) => {
     throw error;
   }
 };
+
+export const renameTable = async (oldName: string, newName: string) => {
+  try {
+    // First check if the new name already exists
+    const exists = await checkTableExists(newName);
+    if (exists) {
+      throw new Error(`A table named "${newName}" already exists. Please choose a different name.`);
+    }
+
+    // Use the rename_table stored procedure
+    const { error } = await supabase.rpc('rename_table', {
+      old_table_name: oldName,
+      new_table_name: newName
+    });
+
+    if (error) throw error;
+
+    // Update the table name in master_tables
+    const { error: masterError } = await supabase
+      .from('master_tables')
+      .update({ table_name: newName })
+      .eq('table_name', oldName);
+
+    if (masterError) throw masterError;
+
+  } catch (error) {
+    console.error('Error renaming table:', error);
+    throw error;
+  }
+};
   
