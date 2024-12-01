@@ -360,6 +360,21 @@ export const deleteTable = async (tableName: string) => {
   }
 };
 
+export const deleteRows = async (tableName: string, ids: (number | string)[]) => {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .delete()
+      .in('id', ids);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error deleting rows:', error);
+    throw error;
+  }
+};
+
 export const renameTable = async (oldName: string, newName: string) => {
   try {
     // First check if the new name already exists
@@ -386,7 +401,7 @@ export const renameTable = async (oldName: string, newName: string) => {
 
   } catch (error) {
     console.error('Error renaming table:', error);
-    throw error;
+     throw error;
   }
 };
   
