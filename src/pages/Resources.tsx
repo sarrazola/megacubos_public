@@ -51,7 +51,7 @@ const Resources = () => {
     {
       id: 'megacubosdb',
       name: 'MegacubosDB',
-      icon: <Database className="h-8 w-8 text-blue-500" />,
+      icon: <img src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Logo.png" alt="MegacubosDB" className="h-8 w-8" />,
       description: 'Megacubos hosted PostgreSQL DB',
       type: 'database',
     },
