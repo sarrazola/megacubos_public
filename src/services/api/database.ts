@@ -337,4 +337,26 @@ export const getAddRowSchema = async (tableName: string) => {
   
   return data || [];
 };
+
+export const deleteTable = async (tableName: string) => {
+  try {
+    // First delete from master_tables
+    const { error: masterError } = await supabase
+      .from('master_tables')
+      .delete()
+      .eq('table_name', tableName);
+
+    if (masterError) throw masterError;
+
+    // Then drop the actual table using raw SQL query
+    const { error } = await supabase.rpc('drop_table_safe', {
+      table_name: tableName
+    });
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting table:', error);
+    throw error;
+  }
+};
   
