@@ -1,36 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import ComponentPalette from '../components/builder/ComponentPalette';
 import Canvas from '../components/builder/Canvas';
-import PropertiesPanel from '../components/builder/PropertiesPanel';
-import { useCanvasStore } from '../store/useCanvasStore';
 import { useEditorStore } from '../store/useEditorStore';
+import { useCanvasStore } from '../store/useCanvasStore';
 import CustomDragLayer from '../components/builder/CustomDragLayer';
+import PropertiesPanel from '../components/builder/PropertiesPanel';
 
 const Builder = () => {
+  const isEditorMode = useEditorStore((state) => state.isEditorMode);
+  const toggleEditorMode = useEditorStore((state) => state.toggleEditorMode);
   const selectedComponent = useCanvasStore((state) => state.selectedComponent);
-  const { isEditorMode } = useEditorStore();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && isEditorMode) {
+        toggleEditorMode();
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isEditorMode, toggleEditorMode]);
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="p-6">
+      <div className="flex h-[calc(100vh-4rem)]">
         <CustomDragLayer />
-        <div className="grid grid-cols-6 gap-6">
-          {isEditorMode && (
-            <div className="col-span-1">
-              <ComponentPalette />
-            </div>
-          )}
-          <div className={isEditorMode ? 'col-span-4' : 'col-span-6'}>
-            <Canvas isEditorMode={isEditorMode} />
+        {isEditorMode && (
+          <div className="hidden md:block w-64 p-4">
+            <ComponentPalette />
           </div>
-          {isEditorMode && selectedComponent && (
-            <div className="col-span-1">
-              <PropertiesPanel />
-            </div>
-          )}
+        )}
+        <div className="flex-1 p-6">
+          <Canvas isEditorMode={isEditorMode && window.innerWidth >= 768} />
         </div>
+        {isEditorMode && selectedComponent && (
+          <div className="hidden md:block w-64 p-4 border-l">
+            <PropertiesPanel />
+          </div>
+        )}
       </div>
     </DndProvider>
   );

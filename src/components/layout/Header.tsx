@@ -20,7 +20,7 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <button
           onClick={addCanvas}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <Plus className="h-4 w-4" />
           Create New Canvas
@@ -30,7 +30,7 @@ const Header = () => {
 
         <button
           onClick={toggleEditorMode}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
         >
           {isEditorMode ? (
             <>
