@@ -153,10 +153,6 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
                 className="w-full pl-10 pr-4 py-2 border rounded-lg"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 text-gray-700 border rounded-lg hover:bg-gray-50">
-              <Filter className="h-4 w-4" />
-              Filters
-            </button>
             <button 
               onClick={() => setShowAddRow(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -191,15 +187,6 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
             />
           )}
         </div>
-
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-          <button
-            onClick={() => setShowAddColumn(true)}
-            className="text-blue-600 hover:text-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </th>
       </div>
 
       {showAddColumn && (
