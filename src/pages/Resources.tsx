@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Database, Server, Globe2, Boxes, Plus, Table2, Trash2, Pencil } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Database, Server, Globe2, Boxes, Plus, Table2, Trash2, Pencil, ArrowLeft } from 'lucide-react';
 import TableBuilder from '../components/database/TableBuilder';
 import DatabaseTable from '../components/database/DatabaseTable';
 import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables, deleteTable, renameTable } from '../services/api/database';
@@ -22,6 +22,30 @@ const Resources = () => {
   const [tableToDelete, setTableToDelete] = useState<string | null>(null);
   const [tableToRename, setTableToRename] = useState<string | null>(null);
   const [newTableName, setNewTableName] = useState('');
+
+  useEffect(() => {
+    window.history.pushState({ page: 'resources' }, '');
+    const handlePopState = () => {
+      if (showTableView) {
+        setShowTableView(false);
+      }
+      if (currentTable) {
+        setCurrentTable(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showTableView, currentTable]);
+
+  const handleBack = () => {
+    if (currentTable) {
+      setCurrentTable(null);
+    } else if (showTableView) {
+      setShowTableView(false);
+    }
+    window.history.back();
+  };
 
   const resources: ResourceCard[] = [
     {
@@ -129,9 +153,17 @@ const Resources = () => {
     return (
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Database className="h-6 w-6 text-blue-500" />
-            <h1 className="text-2xl font-semibold">MegacubosDB Tables</h1>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleBack}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </button>
+            <div className="flex items-center gap-2">
+              <Database className="h-6 w-6 text-blue-500" />
+              <h1 className="text-2xl font-semibold">MegacubosDB Tables</h1>
+            </div>
           </div>
           <button
             onClick={() => setShowTableBuilder(true)}
