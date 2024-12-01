@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Plus } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Database, Plus } from 'lucide-react';
 import { fetchProducts } from '../../../../services/api/products';
 import Pagination from '../../../common/Pagination';
 import ColumnMenu from '../../../database/ColumnMenu';
@@ -93,6 +93,25 @@ const TableComponent: React.FC<TableComponentProps> = ({
     );
   };
 
+  if (!currentData.length) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] px-4">
+        <div className="relative mb-8">
+          <div className="w-24 h-24 border-4 border-gray-200 rounded-full animate-spin-slow">
+            <div className="absolute top-1/2 left-1/2 w-5 h-5 bg-blue-500 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Database className="h-12 w-12 text-gray-400" />
+          </div>
+        </div>
+        <h3 className="text-xl font-medium text-gray-900 mb-2">No data available</h3>
+        <p className="text-base text-gray-500 text-center max-w-md">
+          Get started by importing your data from a CSV file or add new rows manually to begin building your database.
+        </p>
+      </div>
+    );
+  }
+
   const handleDeleteColumn = async (columnName: string) => {
     if (!tableName) return;
     
@@ -139,10 +158,21 @@ const TableComponent: React.FC<TableComponentProps> = ({
     }
   };
 
-  if (!currentData.length) {
+  if (currentData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        No data available
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="relative mb-6">
+          <div className="w-16 h-16 border-4 border-gray-200 rounded-full animate-spin-slow">
+            <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-blue-500 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Database className="h-8 w-8 text-gray-400" />
+          </div>
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-1">No data available</h3>
+        <p className="text-sm text-gray-500 text-center max-w-sm">
+          Get started by importing your data from a CSV file or add new rows manually to begin building your database.
+        </p>
       </div>
     );
   }
@@ -167,18 +197,17 @@ const TableComponent: React.FC<TableComponentProps> = ({
                       </span>
                       {getSortIcon(header)}
                     </div>
-                    {header !== 'id' && (
-                      <ColumnMenu
-                        columnName={header}
-                        onSort={(direction) => {
-                          setSortConfig({ key: header, direction });
-                        }}
-                        onDelete={() => handleDeleteColumn(header)}
-                      />
-                    )}
+                    <ColumnMenu
+                      columnName={header}
+                      onSort={(direction) => {
+                        setSortConfig({ key: header, direction });
+                      }}
+                      onDelete={() => handleDeleteColumn(header)}
+                    />
                   </div>
                 </th>
               ))}
+              
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
                 <button
                   onClick={onAddColumn}
