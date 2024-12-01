@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpDown, Plus, Search, Filter, Loader2, Upload } from 'lucide-react';
-import { getTableData, addColumnToTable, importCSVData, insertRow } from '../../services/api/database';
+import { getTableData, addColumnToTable, importCSVData, insertRow, deleteRows } from '../../services/api/database';
 import TableComponent from '../builder/components/TableComponent';
 import AddColumnModal from './AddColumnModal';
 import ImportCSVModal from './ImportCSVModal';
 import AddRowModal from './AddRowModal';
+import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
 
 interface DatabaseTableProps {
   tableName: string;
@@ -28,6 +29,8 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
   const [showImportCSV, setShowImportCSV] = useState(false);
   const [tableColumns, setTableColumns] = useState<string[]>([]);
   const [showAddRow, setShowAddRow] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [rowsToDelete, setRowsToDelete] = useState<any[]>([]);
 
   useEffect(() => {
     loadTableData();
@@ -128,6 +131,24 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
     }
   };
 
+  const handleDeleteRows = async (rows: any[]) => {
+    setRowsToDelete(rows);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const ids = rowsToDelete.map(row => row.id);
+      await deleteRows(tableName, ids);
+      await loadTableData(); // Refresh the table data
+      setShowDeleteConfirmation(false);
+      setRowsToDelete([]);
+    } catch (error) {
+      console.error('Error deleting rows:', error);
+      alert('Failed to delete rows');
+    }
+  };
+
   return (
     <div className="database-table-container">
       <div className="h-full flex flex-col">
@@ -184,6 +205,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
               onAddColumn={() => setShowAddColumn(true)}
               tableName={tableName}
               onRefresh={loadTableData}
+              onDeleteRows={handleDeleteRows}
             />
           )}
         </div>
@@ -210,6 +232,18 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
           onClose={() => setShowAddRow(false)}
           onSubmit={handleAddRow}
           tableName={tableName}
+        />
+      )}
+
+      {showDeleteConfirmation && (
+        <DeleteConfirmationModal
+          title="Delete Selected Rows"
+          message={`Are you sure you want to delete ${rowsToDelete.length} row(s)? This action cannot be undone.`}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setShowDeleteConfirmation(false);
+            setRowsToDelete([]);
+          }}
         />
       )}
     </div>
