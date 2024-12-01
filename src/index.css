@@ -119,3 +119,14 @@
 .component-dropdown {
   z-index: 1000 !important;
 }
+
+.database-table-container {
+  @apply fixed top-0 bottom-0 right-0 bg-white z-10;
+  left: 16rem; /* 256px / 16 = 16rem */
+}
+
+@media (max-width: 768px) {
+  .database-table-container {
+    left: 0;
+  }
+}

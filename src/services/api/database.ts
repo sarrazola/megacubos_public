@@ -303,4 +303,38 @@ export const importCSVData = async (tableName: string, data: any[]) => {
     throw error;
   }
 };
+
+export const getTableSchema = async (tableName: string) => {
+  const { data, error } = await supabase
+    .rpc('get_table_structure', { target_table: tableName });
+    
+  if (error) {
+    console.error('Error fetching table schema:', error);
+    throw error;
+  }
+  
+  // If data is null, return empty array to prevent errors
+  return data || [];
+};
+
+export const insertRow = async (tableName: string, data: any) => {
+  const response = await supabase
+    .from(tableName)
+    .insert(data);
+    
+  if (response.error) throw response.error;
+  return response.data;
+};
+
+export const getAddRowSchema = async (tableName: string) => {
+  const { data, error } = await supabase
+    .rpc('get_add_row_structure', { target_table: tableName });
+    
+  if (error) {
+    console.error('Error fetching add row schema:', error);
+    throw error;
+  }
+  
+  return data || [];
+};
   
