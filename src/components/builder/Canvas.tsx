@@ -5,148 +5,123 @@ import { useCanvasesStore } from '../../store/useCanvasesStore';
 import DraggableComponent from './DraggableComponent';
 import { getDefaultSize } from '../../utils/componentSizes';
 
+const getDefaultProperties = (type: string) => {
+  switch (type) {
+    case 'chart':
+      return {
+        visualization: 'line',
+        data: [
+          { name: 'Jan', value: 400 },
+          { name: 'Feb', value: 300 },
+          { name: 'Mar', value: 600 },
+          { name: 'Apr', value: 800 },
+          { name: 'May', value: 500 }
+        ],
+        xAxis: 'name',
+        yAxis: 'value',
+        strokeWidth: 2
+      };
+    case 'scorecard':
+      return {
+        label: 'Total Revenue',
+        value: '$50,000',
+        change: '12.5',
+        showComparison: true,
+        selectedIcon: 'dollar',
+        iconBackground: '#93C5FD'
+      };
+    case 'table':
+      return {
+        data: [
+          { id: 1, name: 'Product A', price: 100 },
+          { id: 2, name: 'Product B', price: 200 },
+          { id: 3, name: 'Product C', price: 300 }
+        ],
+        dataSource: 'json'
+      };
+    case 'map':
+      return {
+        latitude: 19.427040,  // Angel de la Independencia latitude
+        longitude: -99.167654 // Angel de la Independencia longitude
+      };
+    default:
+      return {};
+  }
+};
+
 const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
   const { currentCanvasId } = useCanvasesStore();
-  const { components, addComponent, updateComponentPosition, selectedComponent, removeComponent } = useCanvasStore();
-  const currentComponents = components[currentCanvasId] || [];
+  const components = useCanvasStore((state) => state.components[currentCanvasId] || []);
+  const addComponent = useCanvasStore((state) => state.addComponent);
+  const updateComponentPosition = useCanvasStore((state) => state.updateComponentPosition);
+  const selectComponent = useCanvasStore((state) => state.selectComponent);
+  const initializeCanvas = useCanvasStore((state) => state.initializeCanvas);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isEditorMode) return;
-      
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedComponent) {
-        // Prevent backspace from navigating back
-        if (e.key === 'Backspace') {
-          e.preventDefault();
-        }
-        
-        removeComponent(currentCanvasId, selectedComponent);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isEditorMode, selectedComponent, currentCanvasId, removeComponent]);
-
-  const getDefaultProperties = (type: string) => {
-    switch (type) {
-      case 'table':
-        return {
-          data: [
-            { id: 1, name: 'John Doe', email: 'john@example.com', status: 'Active' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com', status: 'Inactive' },
-            { id: 3, name: 'Bob Johnson', email: 'bob@example.com', status: 'Active' }
-          ],
-          showActions: true,
-          actionButtonLabel: 'View',
-          actionColumnLabel: 'Actions',
-          pageSize: 5
-        };
-      case 'chart':
-        return {
-          data: [
-            { name: 'Jan', value: 400 },
-            { name: 'Feb', value: 300 },
-            { name: 'Mar', value: 600 },
-            { name: 'Apr', value: 800 },
-            { name: 'May', value: 500 }
-          ],
-          xAxis: 'name',
-          yAxis: 'value',
-          strokeWidth: 2,
-          visualization: 'line'
-        };
-      case 'text':
-        return {
-          content: 'Sample Text',
-          fontSize: 16,
-          color: '#000000',
-          fontFamily: 'sans-serif',
-          bold: false
-        };
-      case 'button':
-        return {
-          label: 'Button',
-          url: 'https://www.google.com',
-          backgroundColor: '#3b82f6',
-          textColor: '#ffffff'
-        };
-      case 'scorecard':
-        return {
-          label: 'Total Revenue',
-          value: '$12,345',
-          showComparison: true,
-          change: '+12.5',
-          iconBackground: '#93C5FD',
-          selectedIcon: 'dollar'
-        };
-      case 'pdf':
-        return {
-          url: 'https://alwan.global/wp-content/uploads/2024/06/Tesla-Cybertruck.pdf'
-        };
-      case 'image':
-        return {
-          url: 'https://images.unsplash.com/photo-1461988320302-91bde64fc8e4?ixid=2yJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1200&h=800&q=80',
-          alt: 'Sample Image'
-        };
-      case 'map':
-        return {
-          latitude: 51.505,
-          longitude: -0.09
-        };
-      default:
-        return {};
+    if (currentCanvasId) {
+      initializeCanvas(currentCanvasId);
     }
-  };
+  }, [currentCanvasId, initializeCanvas]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'MOVE_COMPONENT'],
-    drop: (item: { id?: string; type: string }, monitor) => {
+    drop: (item: { type: string; id?: string }, monitor) => {
       const offset = monitor.getClientOffset();
-      if (offset) {
-        const canvasRect = document.getElementById('canvas')?.getBoundingClientRect();
-        if (canvasRect) {
-          const x = offset.x - canvasRect.left;
-          const y = offset.y - canvasRect.top;
-          
-          if (item.id) {
-            updateComponentPosition(currentCanvasId, item.id, { x, y });
-          } else {
-            const defaultSize = getDefaultSize(item.type);
+      if (!offset || !currentCanvasId) return;
 
-            addComponent(currentCanvasId, {
-              id: `${item.type}-${Date.now()}`,
-              type: item.type,
-              position: { x, y },
-              size: defaultSize,
-              properties: getDefaultProperties(item.type)
-            });
-          }
-        }
+      const dropTarget = document.getElementById('canvas-drop-target');
+      const dropTargetRect = dropTarget?.getBoundingClientRect();
+      
+      if (!dropTargetRect) return;
+
+      const position = {
+        x: offset.x - dropTargetRect.left,
+        y: offset.y - dropTargetRect.top,
+      };
+
+      if (item.id) {
+        // Moving existing component
+        updateComponentPosition(currentCanvasId, item.id, position);
+      } else {
+        // Adding new component
+        const newComponent = {
+          id: crypto.randomUUID(),
+          type: item.type,
+          position,
+          size: getDefaultSize(item.type),
+          properties: getDefaultProperties(item.type),
+        };
+        addComponent(currentCanvasId, newComponent);
       }
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: !!monitor.isOver(),
     }),
-  }), [currentCanvasId]);
+  }), [currentCanvasId, addComponent, updateComponentPosition]);
 
   return (
     <div
-      id="canvas"
+      id="canvas-drop-target"
       ref={drop}
-      className={`relative bg-gray-100 rounded-lg overflow-auto ${
-        isOver ? 'border-2 border-blue-400' : 'border-2 border-transparent'
-      } ${isEditorMode ? 'editor-mode' : ''}`}
-      style={{ height: 'calc(100vh - 6rem)' }}
+      className={`relative w-full h-[calc(100vh-4rem)] border-2 rounded-lg ${
+        isOver ? 'border-blue-500' : 'border-gray-200'
+      } bg-gray-50`}
     >
-      {currentComponents.map((component) => (
-        <DraggableComponent key={component.id} component={component} isEditorMode={isEditorMode} />
-      ))}
-      {currentComponents.length === 0 && isEditorMode && (
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-          Drag and drop components here
+      {components.length === 0 && isEditorMode && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-gray-400 text-lg">
+            Drag and drop components here to build your dashboard
+          </p>
         </div>
       )}
+      {components.map((component) => (
+        <DraggableComponent
+          key={component.id}
+          component={component}
+          isEditorMode={isEditorMode}
+          onClick={() => selectComponent(component.id)}
+        />
+      ))}
     </div>
   );
 };
