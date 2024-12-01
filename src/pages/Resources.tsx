@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Database, Server, Globe2, Boxes, Plus, Table2 } from 'lucide-react';
+import { Database, Server, Globe2, Boxes, Plus, Table2, Trash2 } from 'lucide-react';
 import TableBuilder from '../components/database/TableBuilder';
 import DatabaseTable from '../components/database/DatabaseTable';
-import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables } from '../services/api/database';
+import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables, deleteTable } from '../services/api/database';
+import DeleteTableModal from '../components/database/DeleteTableModal';
 
 interface ResourceCard {
   id: string;
@@ -17,6 +18,7 @@ const Resources = () => {
   const [showTableView, setShowTableView] = useState(false);
   const [currentTable, setCurrentTable] = useState<string | null>(null);
   const [tables, setTables] = useState<string[]>([]);
+  const [tableToDelete, setTableToDelete] = useState<string | null>(null);
 
   const resources: ResourceCard[] = [
     {
@@ -86,6 +88,19 @@ const Resources = () => {
     }
   };
 
+  const handleDeleteTable = async () => {
+    if (!tableToDelete) return;
+    
+    try {
+      await deleteTable(tableToDelete);
+      setTables(tables.filter(t => t !== tableToDelete));
+      setTableToDelete(null);
+    } catch (error) {
+      console.error('Error deleting table:', error);
+      alert('Failed to delete table');
+    }
+  };
+
   if (showTableView) {
     return (
       <div className="p-6">
@@ -119,20 +134,33 @@ const Resources = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tables.map((table) => (
-              <div
-                key={table}
-                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => setCurrentTable(table)}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Table2 className="h-6 w-6 text-blue-500" />
-                  <h3 className="text-lg font-semibold">{table}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {tables.map((table) => (
+    <div
+      key={table}
+      className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div 
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => setCurrentTable(table)}
+        >
+          <Table2 className="h-6 w-6 text-blue-500" />
+          <h3 className="text-lg font-semibold">{table}</h3>
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setTableToDelete(table);
+          }}
+          className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
         )}
 
         {showTableBuilder && (
@@ -146,6 +174,14 @@ const Resources = () => {
           <DatabaseTable
             tableName={currentTable}
             onClose={() => setCurrentTable(null)}
+          />
+        )}
+
+        {tableToDelete && (
+          <DeleteTableModal
+            tableName={tableToDelete}
+            onClose={() => setTableToDelete(null)}
+            onConfirm={handleDeleteTable}
           />
         )}
       </div>
