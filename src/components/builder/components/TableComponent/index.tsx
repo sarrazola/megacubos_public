@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Database, Plus } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical, Database, Plus, Trash2 } from 'lucide-react';
 import { fetchProducts } from '../../../../services/api/products';
 import Pagination from '../../../common/Pagination';
 import ColumnMenu from '../../../database/ColumnMenu';
@@ -11,6 +11,7 @@ interface TableComponentProps {
   onAddColumn?: () => void;
   tableName?: string;
   onRefresh?: () => void;
+  onDeleteRows?: (rows: any[]) => void;
 }
 
 interface SortConfig {
@@ -24,12 +25,38 @@ interface EditingCell {
   value: any;
 }
 
+interface DeleteModalProps {
+  selectedCount: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({ selectedCount, onConfirm, onCancel }) => (
+  <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-4 flex items-center gap-4 z-50">
+    <span className="text-sm font-medium">{selectedCount} row(s) selected</span>
+    <button
+      onClick={onConfirm}
+      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+    >
+      <Trash2 className="h-4 w-4" />
+      Delete Selected
+    </button>
+    <button
+      onClick={onCancel}
+      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+    >
+      Cancel
+    </button>
+  </div>
+);
+
 const TableComponent: React.FC<TableComponentProps> = ({
   data: initialData,
   pageSize = 5,
   onAddColumn,
   tableName,
   onRefresh,
+  onDeleteRows,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState(initialData);
@@ -38,6 +65,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     direction: 'desc'
   });
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setData(initialData);
@@ -158,6 +186,32 @@ const TableComponent: React.FC<TableComponentProps> = ({
     }
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = currentData.map(row => getRowKey(row, 0));
+      setSelectedRows(new Set(allIds));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (rowKey: string) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(rowKey)) {
+      newSelected.delete(rowKey);
+    } else {
+      newSelected.add(rowKey);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleDeleteSelected = () => {
+    if (!onDeleteRows) return;
+    const rowsToDelete = initialData.filter(row => selectedRows.has(getRowKey(row, 0)));
+    onDeleteRows(rowsToDelete);
+    setSelectedRows(new Set());
+  };
+
   if (currentData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -183,6 +237,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <input
+                  type="checkbox"
+                  checked={selectedRows.size === currentData.length}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+              </th>
               {Object.keys(currentData[0]).map((header) => (
                 <th
                   key={header}
@@ -220,7 +282,22 @@ const TableComponent: React.FC<TableComponentProps> = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentData.map((row, idx) => (
-              <tr key={getRowKey(row, startIndex + idx)}>
+              <tr 
+                key={getRowKey(row, startIndex + idx)}
+                className={`${
+                  selectedRows.has(getRowKey(row, startIndex + idx)) 
+                    ? 'bg-gray-50' 
+                    : ''
+                } hover:bg-gray-50 transition-colors duration-150`}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.has(getRowKey(row, startIndex + idx))}
+                    onChange={() => handleSelectRow(getRowKey(row, startIndex + idx))}
+                    className="rounded border-gray-300"
+                  />
+                </td>
                 {Object.entries(row).map(([columnName, cellValue]) => (
                   <td
                     key={`${getRowKey(row, startIndex + idx)}-${columnName}`}
@@ -255,6 +332,13 @@ const TableComponent: React.FC<TableComponentProps> = ({
           </tbody>
         </table>
       </div>
+      {selectedRows.size > 0 && (
+        <DeleteModal
+          selectedCount={selectedRows.size}
+          onConfirm={handleDeleteSelected}
+          onCancel={() => setSelectedRows(new Set())}
+        />
+      )}
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

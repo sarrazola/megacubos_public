@@ -359,4 +359,19 @@ export const deleteTable = async (tableName: string) => {
     throw error;
   }
 };
+
+export const deleteRows = async (tableName: string, ids: (number | string)[]) => {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .delete()
+      .in('id', ids);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error deleting rows:', error);
+    throw error;
+  }
+};
   
