@@ -84,9 +84,8 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: <LayoutDashboard />, label: 'Canvas', id: 'dashboard', hasSubMenu: true },
-    { icon: <Database />, label: 'Data', id: 'data' },
     { icon: <Users />, label: 'Users', id: 'users' },
-    { icon: <Code />, label: 'Resources', id: 'resources' },
+    { icon: <Database />, label: 'Resources', id: 'resources' },
     { icon: <Settings />, label: 'Settings', id: 'settings' },
   ];
 
