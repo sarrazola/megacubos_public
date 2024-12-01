@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpDown, Plus, Search, Filter, Loader2, Upload } from 'lucide-react';
-import { getTableData, addColumnToTable, importCSVData } from '../../services/api/database';
+import { getTableData, addColumnToTable, importCSVData, insertRow } from '../../services/api/database';
 import TableComponent from '../builder/components/TableComponent';
 import AddColumnModal from './AddColumnModal';
 import ImportCSVModal from './ImportCSVModal';
+import AddRowModal from './AddRowModal';
 
 interface DatabaseTableProps {
   tableName: string;
@@ -26,6 +27,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
   const [tableColumns, setTableColumns] = useState<string[]>([]);
+  const [showAddRow, setShowAddRow] = useState(false);
 
   useEffect(() => {
     loadTableData();
@@ -116,8 +118,18 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
     }
   };
 
+  const handleAddRow = async (rowData: any) => {
+    try {
+      await insertRow(tableName, rowData);
+      loadTableData();
+    } catch (error) {
+      console.error('Error adding row:', error);
+      throw error;
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-white z-10">
+    <div className="database-table-container">
       <div className="h-full flex flex-col">
         <div className="border-b p-4">
           <div className="flex items-center justify-between mb-4">
@@ -145,7 +157,10 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
               <Filter className="h-4 w-4" />
               Filters
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button 
+              onClick={() => setShowAddRow(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4" />
               Add Row
             </button>
@@ -169,7 +184,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
               data={sortedData}
               showActions={true}
               actionButtonLabel="Edit"
-              pageSize={10}
+              pageSize={100}
               onAddColumn={() => setShowAddColumn(true)}
               tableName={tableName}
               onRefresh={loadTableData}
@@ -200,6 +215,14 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
           tableName={tableName}
           onImport={handleImportCSV}
           tableColumns={Object.keys(sortedData[0] || {})}
+        />
+      )}
+
+      {showAddRow && (
+        <AddRowModal
+          onClose={() => setShowAddRow(false)}
+          onSubmit={handleAddRow}
+          tableName={tableName}
         />
       )}
     </div>
