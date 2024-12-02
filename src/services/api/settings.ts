@@ -13,42 +13,49 @@ export interface CompanySettings {
   seats_used: number;
 }
 
-export const fetchCompanySettings = async (): Promise<CompanySettings> => {
+// First get the current user's account_id
+const getCurrentUserAccount = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
   const { data, error } = await supabase
-    .from('company_settings')
+    .from('user_accounts')
+    .select('account_id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+  if (error) throw error;
+  return data.account_id;
+};
+
+export const fetchCompanySettings = async (): Promise<CompanySettings> => {
+  const accountId = await getCurrentUserAccount();
+
+  const { data, error } = await supabase
+    .from('accounts')
     .select('*')
-    .limit(1)
-    .maybeSingle();
+    .eq('id', accountId)
+    .single();
 
   if (error) {
     console.error('Error fetching company settings:', error);
     throw error;
   }
 
-  // If no settings exist, return default values
-  if (!data) {
-    return {
-      id: 1,
-      company_name: 'Colchones Estelar',
-      plan: 'Básico',
-      seats_total: 8,
-      seats_used: 2
-    };
-  }
-
-  return data;
+  return {
+    id: data.id,
+    company_name: data.company_name,
+    plan: data.plan,
+    seats_total: data.seats_total,
+    seats_used: data.seats_used
+  };
 };
 
 export const updateCompanyName = async (id: number, company_name: string): Promise<CompanySettings> => {
   const { data, error } = await supabase
-    .from('company_settings')
-    .upsert({ 
-      id,
-      company_name,
-      plan: 'Básico',
-      seats_total: 8,
-      seats_used: 2
-    })
+    .from('accounts')
+    .update({ company_name })
+    .eq('id', id)
     .select()
     .single();
 
@@ -57,5 +64,11 @@ export const updateCompanyName = async (id: number, company_name: string): Promi
     throw error;
   }
 
-  return data;
+  return {
+    id: data.id,
+    company_name: data.company_name,
+    plan: data.plan,
+    seats_total: data.seats_total,
+    seats_used: data.seats_used
+  };
 };
