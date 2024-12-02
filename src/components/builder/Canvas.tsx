@@ -109,9 +109,43 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
     >
       {components.length === 0 && isEditorMode && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-gray-400 text-lg">
-            Drag and drop components here to build your dashboard
-          </p>
+          <div className="text-center space-y-6">
+            {/* Animated Illustration */}
+            <div className="relative w-48 h-48 mx-auto">
+              {/* Component being dragged */}
+              <div className="absolute w-24 h-24 bg-blue-100 rounded-lg border-2 border-blue-300 shadow-lg animate-floating">
+                <div className="h-full flex items-center justify-center">
+                  <div className="w-16 h-3 bg-blue-300 rounded" />
+                </div>
+              </div>
+              
+              {/* Mouse cursor */}
+              <div className="absolute w-6 h-6 animate-cursor">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path 
+                    d="M4 4L12 20L15 13L22 10L4 4Z" 
+                    fill="#4B5563"
+                    stroke="#4B5563"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              
+              {/* Target drop area indication */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg animate-pulse" />
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Start Building Your Dashboard
+              </h3>
+              <p className="text-gray-500 max-w-sm mx-auto">
+                Drag and drop components from the left panel to create your custom dashboard
+              </p>
+            </div>
+          </div>
         </div>
       )}
       {components.map((component) => (
