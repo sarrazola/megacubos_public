@@ -1,4 +1,6 @@
 import React from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './pages/Login';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import Builder from './pages/Builder';
@@ -8,8 +10,21 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import { usePageStore } from './store/usePageStore';
 
-function App() {
+function AppContent() {
+  const { user, loading } = useAuth();
   const currentPage = usePageStore((state) => state.currentPage);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -25,6 +40,14 @@ function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
