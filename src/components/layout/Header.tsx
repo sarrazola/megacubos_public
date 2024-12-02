@@ -1,13 +1,23 @@
 import React from 'react';
-import { Eye, Edit2, Plus } from 'lucide-react';
+import { Eye, Edit2, Plus, LogOut } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const { isEditorMode, toggleEditorMode } = useEditorStore();
   const { currentPage } = usePageStore();
   const { addCanvas } = useCanvasesStore();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   if (currentPage !== 'dashboard') {
     return (
@@ -16,33 +26,43 @@ const Header = () => {
   }
 
   return (
-    <header className="h-16 bg-white border-b fixed top-0 right-0 left-64 px-6 flex items-center justify-between z-10">
-      <div className="flex items-center gap-4">
-        <button
-          onClick={addCanvas}
-          className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Create New Canvas
-        </button>
+    <header className="fixed top-0 right-0 left-0 md:left-64 h-16 bg-white border-b z-30">
+      <div className="h-full px-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={addCanvas}
+            className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            Create New Canvas
+          </button>
 
-        <div className="flex-1" />
+          <div className="flex-1" />
+
+          <button
+            onClick={toggleEditorMode}
+            className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            {isEditorMode ? (
+              <>
+                <Eye className="h-4 w-4" />
+                <span>Switch to Live Mode</span>
+              </>
+            ) : (
+              <>
+                <Edit2 className="h-4 w-4" />
+                <span>Switch to Editor Mode</span>
+              </>
+            )}
+          </button>
+        </div>
 
         <button
-          onClick={toggleEditorMode}
-          className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          onClick={handleSignOut}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
-          {isEditorMode ? (
-            <>
-              <Eye className="h-4 w-4" />
-              <span>Switch to Live Mode</span>
-            </>
-          ) : (
-            <>
-              <Edit2 className="h-4 w-4" />
-              <span>Switch to Editor Mode</span>
-            </>
-          )}
+          <LogOut className="h-5 w-5" />
+          Sign out
         </button>
       </div>
     </header>
