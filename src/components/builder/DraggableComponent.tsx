@@ -341,7 +341,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           component.type === 'button' ? 80 : 200,
           component.type === 'button' ? 32 : (component.type === 'scorecard' ? 120 : 100)
         ]}
-        maxConstraints={[800, 600]}
+        maxConstraints={[
+          component.type === 'table' ? 2000 : 800,
+          1600
+        ]}
         className="canvas-component"
         handle={<div className="react-resizable-handle" />}
       >
