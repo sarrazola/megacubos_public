@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { PanelLeft, Settings, Database, LayoutDashboard, Users, Code, ChevronRight, User, MoreVertical, Copy, Trash2, Pencil, Check, X } from 'lucide-react';
+import { PanelLeft, Settings, Database, LayoutDashboard, Users, Code, ChevronRight, User, MoreVertical, Copy, Trash2, Pencil, Check, X, LogOut } from 'lucide-react';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import { fetchUsers } from '../../services/api/users';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
   const { currentPage, setCurrentPage } = usePageStore();
@@ -13,6 +14,8 @@ const Sidebar = () => {
   const [editingCanvasId, setEditingCanvasId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     const loadCurrentUser = async () => {
@@ -25,9 +28,19 @@ const Sidebar = () => {
         console.error('Failed to fetch current user:', error);
       }
     };
-
     loadCurrentUser();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isUserMenuOpen && !(event.target as Element).closest('.user-menu')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isUserMenuOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -237,15 +250,47 @@ const Sidebar = () => {
         </nav>
 
         {currentUser && (
-          <button
-            onClick={() => setCurrentPage('profile')}
-            className="mt-auto pt-4 border-t border-gray-700 flex items-center gap-3 w-full hover:bg-gray-800 p-2 rounded-lg transition-colors"
-          >
-            <div className="p-2 bg-gray-800 rounded-full">
-              <User className="h-5 w-5" />
-            </div>
-            <span className="font-medium">{currentUser.name}</span>
-          </button>
+          <div className="relative mt-auto pt-4 border-t border-gray-700 user-menu">
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="w-full flex items-center gap-3 hover:bg-gray-800 p-2 rounded-lg transition-colors"
+            >
+              <div className="p-2 bg-gray-800 rounded-full">
+                <User className="h-5 w-5" />
+              </div>
+              <span className="font-medium flex-1 text-left">{currentUser.name}</span>
+              <ChevronRight className={`h-4 w-4 transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
+            </button>
+
+            {isUserMenuOpen && (
+              <div className="absolute bottom-full left-0 w-full mb-2 bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-700">
+                <button
+                  onClick={() => {
+                    setCurrentPage('settings');
+                    setIsUserMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                      setIsUserMenuOpen(false);
+                    } catch (error) {
+                      console.error('Error signing out:', error);
+                    }
+                  }}
+                  className="w-full px-4 py-2 text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
