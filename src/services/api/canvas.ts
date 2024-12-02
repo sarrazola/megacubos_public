@@ -15,8 +15,6 @@ export const fetchUserCanvases = async () => {
 
     if (!userAccount) throw new Error('No associated company found');
 
-    console.log('Fetching canvases for account:', userAccount.account_id);
-
     // Fetch active canvases for this company
     const { data, error } = await supabase
       .from('canvas')
@@ -27,9 +25,11 @@ export const fetchUserCanvases = async () => {
 
     if (error) throw error;
 
-    console.log('Fetched canvases:', data);
+    // Only log if there are actually canvases
+    if (data && data.length > 0) {
+      console.log(`Found ${data.length} canvases for account:`, userAccount.account_id);
+    }
 
-    // Make sure we return an empty array if no data
     return data || [];
   } catch (error) {
     console.error('Error fetching canvases:', error);
