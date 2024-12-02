@@ -11,6 +11,7 @@ import Resources from './pages/Resources';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import { usePageStore } from './store/usePageStore';
+import OnboardingWrapper from './components/layout/OnboardingWrapper';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -47,14 +48,16 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/*" element={<AppContent />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <OnboardingWrapper>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/*" element={<AppContent />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </OnboardingWrapper>
   );
 }
 
