@@ -1,23 +1,13 @@
 import React from 'react';
-import { Eye, Edit2, Plus, LogOut } from 'lucide-react';
+import { Eye, Edit2, Plus } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
-import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const { isEditorMode, toggleEditorMode } = useEditorStore();
   const { currentPage } = usePageStore();
   const { addCanvas } = useCanvasesStore();
-  const { signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
   if (currentPage !== 'dashboard') {
     return (
@@ -56,17 +46,9 @@ const Header = () => {
             )}
           </button>
         </div>
-
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <LogOut className="h-5 w-5" />
-          Sign out
-        </button>
       </div>
     </header>
   );
-};
+}
 
 export default Header;
