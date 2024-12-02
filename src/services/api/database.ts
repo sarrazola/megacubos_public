@@ -53,10 +53,24 @@ const getSqlType = (type: string): string => {
 
 export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
+    // Get current user's account_id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data: userAccount, error: userError } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    // Check if table exists for this account
     const { data, error } = await supabase
       .from('master_tables')
       .select('table_name')
       .eq('table_name', tableName)
+      .eq('account_id', userAccount.account_id)
       .single();
 
     if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
@@ -72,9 +86,25 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
 
 export const addToMasterTables = async (tableName: string) => {
   try {
+    // Get current user's account_id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data: userAccount, error: userError } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    // Insert into master_tables with account_id
     const { error } = await supabase
       .from('master_tables')
-      .insert([{ table_name: tableName }]);
+      .insert([{ 
+        table_name: tableName,
+        account_id: userAccount.account_id 
+      }]);
 
     if (error) throw error;
   } catch (error) {
@@ -85,15 +115,36 @@ export const addToMasterTables = async (tableName: string) => {
 
 export const fetchTables = async () => {
   try {
+    // First get the current user's account_id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data: userAccount, error: userError } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (userError) {
+      console.error('Error getting user account:', userError);
+      throw userError;
+    }
+
+    // Then fetch tables for this account only
     const { data, error } = await supabase
       .from('master_tables')
-      .select('table_name')
-      .order('table_name', { ascending: true });
+      .select('table_name, type')
+      .eq('account_id', userAccount.account_id)
+      .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching tables:', error);
+      throw error;
+    }
+    
     return data.map(row => row.table_name);
   } catch (error) {
-    console.error('Error fetching tables:', error);
+    console.error('Error in fetchTables:', error);
     throw error;
   }
 };
@@ -114,6 +165,31 @@ export const getTableStructure = async (tableName: string) => {
 
 export const getTableData = async (tableName: string) => {
   try {
+    // First verify the user has access to this table
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data: userAccount, error: userError } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    // Check if table belongs to user's account
+    const { data: tableCheck, error: tableError } = await supabase
+      .from('master_tables')
+      .select('table_name')
+      .eq('table_name', tableName)
+      .eq('account_id', userAccount.account_id)
+      .single();
+
+    if (tableError || !tableCheck) {
+      throw new Error('Table not found or access denied');
+    }
+
+    // If verified, get the table data
     const { data, error } = await supabase
       .from(tableName)
       .select('*')
