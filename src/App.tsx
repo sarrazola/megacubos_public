@@ -1,6 +1,8 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
+import SignUp from './pages/SignUp';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import Builder from './pages/Builder';
@@ -45,9 +47,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
