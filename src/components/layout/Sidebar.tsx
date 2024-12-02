@@ -2,12 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { PanelLeft, Settings, Database, LayoutDashboard, Users, Code, ChevronRight, User, MoreVertical, Copy, Trash2, Pencil, Check, X, LogOut } from 'lucide-react';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
+import { useCanvasStore } from '../../store/useCanvasStore';
 import { fetchUsers } from '../../services/api/users';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
   const { currentPage, setCurrentPage } = usePageStore();
-  const { canvases, currentCanvasId, setCurrentCanvas, deleteCanvas, duplicateCanvas, renameCanvas } = useCanvasesStore();
+  const { 
+    canvases, 
+    fetchCanvases, 
+    deleteCanvas, 
+    duplicateCanvas,
+    renameCanvas,
+    currentCanvasId,
+    setCurrentCanvas 
+  } = useCanvasesStore();
+
+  const { initializeCanvas } = useCanvasStore();
+
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
@@ -16,6 +28,12 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { signOut } = useAuth();
+
+  useEffect(() => {
+    fetchCanvases().catch(error => {
+      console.error('Failed to fetch canvases:', error);
+    });
+  }, [fetchCanvases]);
 
   useEffect(() => {
     const loadCurrentUser = async () => {
@@ -79,11 +97,10 @@ const Sidebar = () => {
     setEditingName(canvas.name);
   };
 
-  const handleSaveCanvasName = () => {
+  const handleSaveCanvasName = async () => {
     if (editingCanvasId && editingName.trim()) {
-      renameCanvas(editingCanvasId, editingName.trim());
+      await renameCanvas(editingCanvasId, editingName.trim());
       setEditingCanvasId(null);
-      setOpenMenu(null);
     }
   };
 
@@ -92,6 +109,15 @@ const Sidebar = () => {
       handleSaveCanvasName();
     } else if (e.key === 'Escape') {
       setEditingCanvasId(null);
+    }
+  };
+
+  const handleCanvasSelect = async (canvasId: string) => {
+    setCurrentCanvas(canvasId);
+    try {
+      await initializeCanvas(canvasId);
+    } catch (error) {
+      console.error('Failed to initialize canvas:', error);
     }
   };
 
@@ -148,7 +174,7 @@ const Sidebar = () => {
                             className={`flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors text-sm ${
                               currentCanvasId === canvas.id ? 'bg-gray-800' : ''
                             }`}
-                            onClick={() => setCurrentCanvas(canvas.id)}
+                            onClick={() => handleCanvasSelect(canvas.id)}
                           >
                             {canvas.name}
                           </button>
