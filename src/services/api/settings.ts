@@ -29,26 +29,53 @@ const getCurrentUserAccount = async () => {
 };
 
 export const fetchCompanySettings = async (): Promise<CompanySettings> => {
-  const accountId = await getCurrentUserAccount();
+  try {
+    const accountId = await getCurrentUserAccount();
 
-  const { data, error } = await supabase
-    .from('accounts')
-    .select('*')
-    .eq('id', accountId)
-    .single();
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('id', accountId)
+      .single();
 
-  if (error) {
-    console.error('Error fetching company settings:', error);
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No data found, create default settings
+        const { data: { user } } = await supabase.auth.getUser();
+        const defaultSettings = {
+          company_name: 'My Company',
+          plan: 'basic',
+          seats_total: 8,
+          seats_used: 1,
+          owner_id: user.id
+        };
+
+        const { data: newData, error: insertError } = await supabase
+          .from('accounts')
+          .insert([defaultSettings])
+          .select()
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        return newData;
+      }
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      company_name: data.company_name,
+      plan: data.plan,
+      seats_total: data.seats_total,
+      seats_used: data.seats_used
+    };
+  } catch (error) {
+    console.error('Error in fetchCompanySettings:', error);
     throw error;
   }
-
-  return {
-    id: data.id,
-    company_name: data.company_name,
-    plan: data.plan,
-    seats_total: data.seats_total,
-    seats_used: data.seats_used
-  };
 };
 
 export const updateCompanyName = async (id: number, company_name: string): Promise<CompanySettings> => {
