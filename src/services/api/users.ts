@@ -6,10 +6,27 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 );
 
+const getCurrentUserAccount = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('user_accounts')
+    .select('account_id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+  if (error) throw error;
+  return data.account_id;
+};
+
 export const fetchUsers = async (): Promise<User[]> => {
+  const accountId = await getCurrentUserAccount();
+
   const { data, error } = await supabase
     .from('user_accounts')
     .select('*')
+    .eq('account_id', accountId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -28,6 +45,7 @@ export const fetchUsers = async (): Promise<User[]> => {
 };
 
 export const createUser = async (user: NewUser): Promise<User> => {
+  const accountId = await getCurrentUserAccount();
   const timestamp = new Date().toISOString();
   
   const { data, error } = await supabase
@@ -38,7 +56,7 @@ export const createUser = async (user: NewUser): Promise<User> => {
       phone: user.phone,
       role: user.role,
       created_at: timestamp,
-      password: 'default-password' // You should implement proper password handling
+      account_id: accountId
     }])
     .select()
     .single();
