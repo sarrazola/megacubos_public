@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
+import { useAuth } from '../../contexts/AuthContext';
 import OnboardingModal from '../modals/OnboardingModal';
 
 interface OnboardingWrapperProps {
@@ -7,23 +8,26 @@ interface OnboardingWrapperProps {
 }
 
 const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({ children }) => {
+  const { user } = useAuth();
   const { canvases, fetchCanvases } = useCanvasesStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    const initializeCanvases = async () => {
-      await fetchCanvases();
-    };
-    initializeCanvases();
-  }, []);
+    if (user) {
+      const initializeCanvases = async () => {
+        await fetchCanvases();
+      };
+      initializeCanvases();
+    }
+  }, [user]);
 
   useEffect(() => {
-    setShowOnboarding(canvases.length === 0);
-  }, [canvases]);
+    setShowOnboarding(user && canvases.length === 0);
+  }, [canvases, user]);
 
   return (
     <>
-      {showOnboarding && canvases.length === 0 && <OnboardingModal />}
+      {showOnboarding && user && canvases.length === 0 && <OnboardingModal />}
       {children}
     </>
   );
