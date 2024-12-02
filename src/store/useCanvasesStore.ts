@@ -22,9 +22,7 @@ export const useCanvasesStore = create<CanvasesStore>((set) => ({
   fetchCanvases: async () => {
     set({ isLoading: true });
     try {
-      console.log('Fetching canvases...');
       const canvases = await fetchUserCanvases();
-      console.log('Fetched canvases:', canvases);
       set({ 
         canvases,
         currentCanvasId: canvases[0]?.id || null,

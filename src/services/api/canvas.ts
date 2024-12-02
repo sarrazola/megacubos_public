@@ -24,12 +24,6 @@ export const fetchUserCanvases = async () => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-
-    // Only log if there are actually canvases
-    if (data && data.length > 0) {
-      console.log(`Found ${data.length} canvases for account:`, userAccount.account_id);
-    }
-
     return data || [];
   } catch (error) {
     console.error('Error fetching canvases:', error);
