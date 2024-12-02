@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
@@ -56,12 +56,24 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
   const updateComponentPosition = useCanvasStore((state) => state.updateComponentPosition);
   const selectComponent = useCanvasStore((state) => state.selectComponent);
   const initializeCanvas = useCanvasStore((state) => state.initializeCanvas);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentCanvasId) {
-      initializeCanvas(currentCanvasId);
+      initializeCanvas(currentCanvasId).catch(err => {
+        console.error('Failed to initialize canvas:', err);
+        setError('Failed to load canvas components. Please try again later.');
+      });
     }
   }, [currentCanvasId, initializeCanvas]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'MOVE_COMPONENT'],

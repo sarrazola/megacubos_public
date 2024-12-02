@@ -3,13 +3,27 @@ import { CanvasComponent } from '../../store/useCanvasStore';
 
 export const saveCanvasComponents = async (canvasId: string, components: CanvasComponent[]) => {
   try {
-    // First delete existing components for this canvas
+    // Get the current user's account/company ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    // Get user's company ID
+    const { data: userAccount } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (!userAccount) throw new Error('No associated company found');
+
+    // First delete existing components for this canvas and company
     await supabase
       .from('canvas_components')
       .delete()
-      .eq('canvas_id', canvasId);
+      .eq('canvas_id', canvasId)
+      .eq('company_id', userAccount.account_id);
 
-    // Then insert the new components
+    // Then insert the new components with company_id
     const { data, error } = await supabase
       .from('canvas_components')
       .insert(
@@ -20,7 +34,8 @@ export const saveCanvasComponents = async (canvasId: string, components: CanvasC
           position_y: comp.position.y,
           width: comp.size.width,
           height: comp.size.height,
-          properties: comp.properties
+          properties: comp.properties,
+          company_id: userAccount.account_id
         }))
       );
 
@@ -34,10 +49,25 @@ export const saveCanvasComponents = async (canvasId: string, components: CanvasC
 
 export const fetchCanvasComponents = async (canvasId: string) => {
   try {
+    // Get the current user's account/company ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    // First get the user's company ID
+    const { data: userAccount } = await supabase
+      .from('user_accounts')
+      .select('account_id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (!userAccount) throw new Error('No associated company found');
+
+    // Now fetch components filtered by both canvas_id and company_id
     const { data, error } = await supabase
       .from('canvas_components')
       .select('*')
-      .eq('canvas_id', canvasId);
+      .eq('canvas_id', canvasId)
+      .eq('company_id', userAccount.account_id);
 
     if (error) throw error;
 
