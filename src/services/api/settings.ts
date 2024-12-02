@@ -5,38 +5,49 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 );
 
-export interface AccountSettings {
+export interface CompanySettings {
   id: number;
   company_name: string;
   plan: string;
   seats_total: number;
   seats_used: number;
-  owner_id: string;
 }
 
-export const fetchAccountSettings = async (): Promise<AccountSettings> => {
+// First get the current user's account_id
+const getCurrentUserAccount = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('user_accounts')
+    .select('account_id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+  if (error) throw error;
+  return data.account_id;
+};
+
+export const fetchCompanySettings = async (): Promise<CompanySettings> => {
   try {
-    const { data: session } = await supabase.auth.getSession();
-    
-    if (!session?.session?.user?.id) {
-      throw new Error('No authenticated user found');
-    }
+    const accountId = await getCurrentUserAccount();
 
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
-      .eq('owner_id', session.session.user.id)
+      .eq('id', accountId)
       .single();
 
     if (error) {
       if (error.code === 'PGRST116') {
         // No data found, create default settings
+        const { data: { user } } = await supabase.auth.getUser();
         const defaultSettings = {
           company_name: 'My Company',
           plan: 'basic',
           seats_total: 8,
           seats_used: 1,
-          owner_id: session.session.user.id
+          owner_id: user.id
         };
 
         const { data: newData, error: insertError } = await supabase
@@ -54,14 +65,20 @@ export const fetchAccountSettings = async (): Promise<AccountSettings> => {
       throw error;
     }
 
-    return data;
+    return {
+      id: data.id,
+      company_name: data.company_name,
+      plan: data.plan,
+      seats_total: data.seats_total,
+      seats_used: data.seats_used
+    };
   } catch (error) {
-    console.error('Error in fetchAccountSettings:', error);
+    console.error('Error in fetchCompanySettings:', error);
     throw error;
   }
 };
 
-export const updateCompanyName = async (id: number, company_name: string): Promise<AccountSettings> => {
+export const updateCompanyName = async (id: number, company_name: string): Promise<CompanySettings> => {
   const { data, error } = await supabase
     .from('accounts')
     .update({ company_name })
@@ -74,5 +91,11 @@ export const updateCompanyName = async (id: number, company_name: string): Promi
     throw error;
   }
 
-  return data;
+  return {
+    id: data.id,
+    company_name: data.company_name,
+    plan: data.plan,
+    seats_total: data.seats_total,
+    seats_used: data.seats_used
+  };
 };
