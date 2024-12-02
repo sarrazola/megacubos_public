@@ -5,50 +5,67 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 );
 
-export interface CompanySettings {
+export interface AccountSettings {
   id: number;
   company_name: string;
   plan: string;
   seats_total: number;
   seats_used: number;
+  owner_id: string;
 }
 
-export const fetchCompanySettings = async (): Promise<CompanySettings> => {
-  const { data, error } = await supabase
-    .from('company_settings')
-    .select('*')
-    .limit(1)
-    .maybeSingle();
+export const fetchAccountSettings = async (): Promise<AccountSettings> => {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    
+    if (!session?.session?.user?.id) {
+      throw new Error('No authenticated user found');
+    }
 
-  if (error) {
-    console.error('Error fetching company settings:', error);
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('owner_id', session.session.user.id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No data found, create default settings
+        const defaultSettings = {
+          company_name: 'My Company',
+          plan: 'basic',
+          seats_total: 8,
+          seats_used: 1,
+          owner_id: session.session.user.id
+        };
+
+        const { data: newData, error: insertError } = await supabase
+          .from('accounts')
+          .insert([defaultSettings])
+          .select()
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        return newData;
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in fetchAccountSettings:', error);
     throw error;
   }
-
-  // If no settings exist, return default values
-  if (!data) {
-    return {
-      id: 1,
-      company_name: 'Colchones Estelar',
-      plan: 'Básico',
-      seats_total: 8,
-      seats_used: 2
-    };
-  }
-
-  return data;
 };
 
-export const updateCompanyName = async (id: number, company_name: string): Promise<CompanySettings> => {
+export const updateCompanyName = async (id: number, company_name: string): Promise<AccountSettings> => {
   const { data, error } = await supabase
-    .from('company_settings')
-    .upsert({ 
-      id,
-      company_name,
-      plan: 'Básico',
-      seats_total: 8,
-      seats_used: 2
-    })
+    .from('accounts')
+    .update({ company_name })
+    .eq('id', id)
     .select()
     .single();
 
