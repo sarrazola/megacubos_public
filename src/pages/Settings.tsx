@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, CreditCard, Pencil, Check, X } from 'lucide-react';
-import { fetchCompanySettings, updateCompanyName, CompanySettings } from '../services/api/settings';
+import { fetchAccountSettings, updateCompanyName, AccountSettings } from '../services/api/settings';
 
 const Settings = () => {
-  const [settings, setSettings] = useState<CompanySettings | null>(null);
+  const [settings, setSettings] = useState<AccountSettings | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +15,7 @@ const Settings = () => {
 
   const loadSettings = async () => {
     try {
-      const data = await fetchCompanySettings();
+      const data = await fetchAccountSettings();
       setSettings(data);
       setNewCompanyName(data.company_name);
     } catch (err) {
@@ -35,7 +35,7 @@ const Settings = () => {
       setIsEditing(false);
     } catch (err) {
       setError('Failed to update company name');
-      console.error('Error at updating company name:', err);
+      console.error('Error updating company name:', err);
     }
   };
 
