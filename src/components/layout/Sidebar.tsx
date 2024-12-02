@@ -99,7 +99,6 @@ const Sidebar = () => {
     { icon: <LayoutDashboard />, label: 'Canvas', id: 'dashboard', hasSubMenu: true },
     { icon: <Users />, label: 'Users', id: 'users' },
     { icon: <Database />, label: 'Resources', id: 'resources' },
-    { icon: <Settings />, label: 'Settings', id: 'settings' },
   ];
 
   return (
