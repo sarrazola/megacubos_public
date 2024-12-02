@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Lock, Mail, Eye, EyeOff, AlertCircle, Zap } from 'lucide-react';
 
@@ -11,6 +12,7 @@ const cubes = [...Array(8)].map((_, i) => ({
 }));
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -141,21 +143,16 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">Don't have an account?</span>
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col gap-3">
               <button
-                type="button"
-                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onClick={() => navigate('/signup')}
+                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-blue-600 rounded-lg shadow-sm bg-white text-sm font-medium text-blue-600 hover:bg-blue-50"
               >
-                <img
-                  src="https://www.google.com/favicon.ico"
-                  alt="Google"
-                  className="h-5 w-5"
-                />
-                Sign in with Google
+                Create Account
               </button>
             </div>
           </div>
