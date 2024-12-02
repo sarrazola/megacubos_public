@@ -40,7 +40,7 @@ const Header = () => {
             {isEditorMode ? (
               <>
                 <Eye className="h-4 w-4" />
-                <span>Switch to Live Mode</span>
+                <span>Switch to Live Mode </span>
               </>
             ) : (
               <>
