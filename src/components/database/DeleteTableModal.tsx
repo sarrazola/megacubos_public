@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, AlertTriangle } from 'lucide-react';
+import { deleteTable } from '../../services/api/database';
 
 interface DeleteTableModalProps {
   tableName: string;
@@ -14,6 +15,7 @@ const DeleteTableModal: React.FC<DeleteTableModalProps> = ({
 }) => {
   const [confirmName, setConfirmName] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,10 +23,14 @@ const DeleteTableModal: React.FC<DeleteTableModalProps> = ({
 
     try {
       setIsDeleting(true);
+      setError(null);
       await onConfirm();
-    } catch (error) {
-      console.error('Error deleting table:', error);
-      alert('Failed to delete table');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to delete table. Please try again.');
+      }
     } finally {
       setIsDeleting(false);
     }
@@ -33,6 +39,11 @@ const DeleteTableModal: React.FC<DeleteTableModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        {error && (
+          <div className="text-red-500 mb-4 p-2 bg-red-100 rounded">
+            {error}
+          </div>
+        )}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-red-600">Delete Table</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -84,4 +95,4 @@ const DeleteTableModal: React.FC<DeleteTableModalProps> = ({
   );
 };
 
-export default DeleteTableModal; 
+export default DeleteTableModal;

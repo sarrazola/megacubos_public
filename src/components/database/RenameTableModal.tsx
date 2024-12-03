@@ -14,11 +14,12 @@ const RenameTableModal: React.FC<RenameTableModalProps> = ({
 }) => {
   const [newName, setNewName] = useState(tableName);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    
+
     // Validate table name format
     const tableNameRegex = /^[a-z][a-z0-9_]*$/;
     if (!tableNameRegex.test(newName.trim())) {
@@ -28,9 +29,17 @@ const RenameTableModal: React.FC<RenameTableModalProps> = ({
 
     try {
       setIsRenaming(true);
+      setError(null);
       await onConfirm(tableName, newName.trim());
     } catch (error) {
       console.error('Error renaming table:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('already exists')) {
+          setError('A table with this name already exists. Please choose a different name.');
+        } else {
+          setError('Failed to rename table. Please try again.');
+        }
+      }
     } finally {
       setIsRenaming(false);
     }
@@ -45,6 +54,12 @@ const RenameTableModal: React.FC<RenameTableModalProps> = ({
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        {error && (
+          <div className="text-red-500 mb-4 p-2 bg-red-100 rounded">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="mb-4">
@@ -84,4 +99,4 @@ const RenameTableModal: React.FC<RenameTableModalProps> = ({
   );
 };
 
-export default RenameTableModal; 
+export default RenameTableModal;
