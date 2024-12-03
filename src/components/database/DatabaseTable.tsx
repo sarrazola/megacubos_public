@@ -31,6 +31,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
   const [showAddRow, setShowAddRow] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [rowsToDelete, setRowsToDelete] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTableData();
@@ -50,8 +51,8 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
     }
   };
 
-  const filteredData = tableData.filter(row => 
-    Object.values(row).some(value => 
+  const filteredData = tableData.filter(row =>
+    Object.values(row).some(value =>
       String(value).toLowerCase().includes(search.toLowerCase())
     )
   );
@@ -59,12 +60,12 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
   const sortedData = [...filteredData].sort((a, b) => {
     if (a[sortConfig.key] === null) return 1;
     if (b[sortConfig.key] === null) return -1;
-    
-    const aValue = typeof a[sortConfig.key] === 'string' 
-      ? a[sortConfig.key].toLowerCase() 
+
+    const aValue = typeof a[sortConfig.key] === 'string'
+      ? a[sortConfig.key].toLowerCase()
       : a[sortConfig.key];
-    const bValue = typeof b[sortConfig.key] === 'string' 
-      ? b[sortConfig.key].toLowerCase() 
+    const bValue = typeof b[sortConfig.key] === 'string'
+      ? b[sortConfig.key].toLowerCase()
       : b[sortConfig.key];
 
     if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -90,7 +91,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
       }
 
       // Validate data before import
-      const invalidRows = mappedData.filter(row => 
+      const invalidRows = mappedData.filter(row =>
         Object.values(row).every(value => value === null || value === undefined)
       );
 
@@ -107,7 +108,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
         message: error.message,
         hint: error.hint
       });
-      
+
       let errorMessage = 'Failed to import CSV data: ';
       if (error.details) {
         errorMessage += error.details;
@@ -116,7 +117,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
       } else {
         errorMessage += 'Unknown error occurred';
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -149,6 +150,16 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
     }
   };
 
+  const handleError = (err: unknown) => {
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError('An unexpected error occurred');
+    }
+    // Auto-hide error after 5 seconds
+    setTimeout(() => setError(null), 5000);
+  };
+
   return (
     <div className="database-table-container">
       <div className="h-full flex flex-col">
@@ -162,7 +173,7 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
               Close
             </button>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -174,14 +185,14 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
                 className="w-full pl-10 pr-4 py-2 border rounded-lg"
               />
             </div>
-            <button 
+            <button
               onClick={() => setShowAddRow(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Plus className="h-4 w-4" />
               Add Row
             </button>
-            <button 
+            <button
               onClick={() => setShowImportCSV(true)}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 border rounded-lg hover:bg-gray-50"
             >
@@ -245,6 +256,15 @@ const DatabaseTable: React.FC<DatabaseTableProps> = ({ tableName, onClose }) => 
             setRowsToDelete([]);
           }}
         />
+      )}
+
+      {error && (
+        <div className="text-red-500 mb-4 p-2 bg-red-100 rounded flex justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-gray-500 hover:text-gray-700">
+            ×
+          </button>
+        </div>
       )}
     </div>
   );

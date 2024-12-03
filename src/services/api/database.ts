@@ -1,4 +1,5 @@
 import { supabase } from '../supabaseClient';
+import { normalizeTableName } from '../../utils/database';
 
 interface TableField {
   name: string;
@@ -8,22 +9,48 @@ interface TableField {
 
 export const createDatabaseTable = async (tableName: string, fields: TableField[]) => {
   try {
-    // Build the SQL query for table creation
+    // First check if table already exists in master_tables
+    const { data: existingTable, error: checkError } = await supabase
+      .from('master_tables')
+      .select('table_name')
+      .ilike('table_name', tableName)
+      .limit(1);
+
+    if (checkError) throw checkError;
+
+    if (existingTable?.length) {
+      throw new Error(`A table named "${tableName}" already exists.`);
+    }
+
+    const normalizedName = normalizeTableName(tableName);
+
+    // First try to add to master_tables
+    await addToMasterTables(tableName);
+
+    // Then create the actual table
     const query = `
-      CREATE TABLE IF NOT EXISTS ${tableName} (
+      CREATE TABLE ${normalizedName} (
         id BIGSERIAL PRIMARY KEY,
-        ${fields.map(field => 
+        ${fields.map(field =>
           `${field.name} ${getSqlType(field.type)}${field.required ? ' NOT NULL' : ''}`
         ).join(',\n        ')}
       );
     `;
 
-    // Execute the query using Supabase's stored procedure
+    // Execute the query using normalized name
     const { data, error } = await supabase.rpc('create_table', {
       table_query: query
     });
 
-    if (error) throw error;
+    if (error) {
+      // If table creation fails, remove from master_tables
+      await supabase
+        .from('master_tables')
+        .delete()
+        .match({ table_name: tableName });
+      throw error;
+    }
+
     return data;
   } catch (error) {
     console.error('Error creating table:', error);
@@ -42,13 +69,12 @@ const getSqlType = (type: string): string => {
     'email': 'TEXT',
     'url': 'TEXT'
   };
-  
+
   return typeMap[type] || 'TEXT';
 };
 
 export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
-    // Get current user's account_id
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
@@ -60,15 +86,15 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
 
     if (userError) throw userError;
 
-    // Check if table exists for this account
+    // Use ilike for case-insensitive comparison
     const { data, error } = await supabase
       .from('master_tables')
       .select('table_name')
-      .eq('table_name', tableName)
+      .ilike('table_name', tableName)
       .eq('account_id', userAccount.account_id)
       .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+    if (error && error.code !== 'PGRST116') {
       throw error;
     }
 
@@ -81,7 +107,6 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
 
 export const addToMasterTables = async (tableName: string) => {
   try {
-    // Get current user's account_id
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
@@ -96,10 +121,16 @@ export const addToMasterTables = async (tableName: string) => {
     // Insert into master_tables with account_id
     const { error } = await supabase
       .from('master_tables')
-      .insert([{ 
+      .insert([{
         table_name: tableName,
-        account_id: userAccount.account_id 
-      }]);
+        account_id: userAccount.account_id
+      }])
+      .single();
+
+    // Handle unique constraint violation
+    if (error?.code === '23505') { // PostgreSQL unique violation code
+      throw new Error(`Table "${tableName}" already exists for this account`);
+    }
 
     if (error) throw error;
   } catch (error) {
@@ -136,7 +167,7 @@ export const fetchTables = async () => {
       console.error('Error fetching tables:', error);
       throw error;
     }
-    
+
     return data.map(row => row.table_name);
   } catch (error) {
     console.error('Error in fetchTables:', error);
@@ -160,35 +191,25 @@ export const getTableStructure = async (tableName: string) => {
 
 export const getTableData = async (tableName: string) => {
   try {
-    // First verify the user has access to this table
+    const normalizedName = normalizeTableName(tableName);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    const { data: userAccount, error: userError } = await supabase
-      .from('user_accounts')
-      .select('account_id')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    if (userError) throw userError;
-
-    // Check if table belongs to user's account
-    const { data: tableCheck, error: tableError } = await supabase
+    // First verify access through master_tables
+    const { data: tables } = await supabase
       .from('master_tables')
       .select('table_name')
-      .eq('table_name', tableName)
-      .eq('account_id', userAccount.account_id)
-      .single();
+      .ilike('table_name', tableName)
+      .limit(1);
 
-    if (tableError || !tableCheck) {
+    if (!tables?.length) {
       throw new Error('Table not found or access denied');
     }
 
-    // If verified, get the table data
+    // If verified, query the actual table
     const { data, error } = await supabase
-      .from(tableName)
-      .select('*')
-      .order('id', { ascending: false });
+      .from(normalizedName)
+      .select('*');
 
     if (error) throw error;
     return data || [];
@@ -275,7 +296,7 @@ export const importCSVData = async (tableName: string, data: any[]) => {
     // Validate and clean each row before inserting
     const cleanedData = data.map((row, index) => {
       const cleanRow: any = {};
-      
+
       // First pass: collect all fields
       Object.entries(row).forEach(([key, value]) => {
         console.log(`Processing ${key}: ${value} (type: ${columnMeta[key]?.type})`);
@@ -378,34 +399,56 @@ export const importCSVData = async (tableName: string, data: any[]) => {
 export const getTableSchema = async (tableName: string) => {
   const { data, error } = await supabase
     .rpc('get_table_structure', { target_table: tableName });
-    
+
   if (error) {
     console.error('Error fetching table schema:', error);
     throw error;
   }
-  
+
   // If data is null, return empty array to prevent errors
   return data || [];
 };
 
 export const insertRow = async (tableName: string, data: any) => {
-  const response = await supabase
-    .from(tableName)
-    .insert(data);
-    
-  if (response.error) throw response.error;
-  return response.data;
+  try {
+    // If no ID is provided, get the max ID and increment it
+    if (!data.id) {
+      const { data: maxResult, error: maxError } = await supabase
+        .from(tableName)
+        .select('id')
+        .order('id', { ascending: false })
+        .limit(1);
+
+      if (!maxError && maxResult && maxResult.length > 0) {
+        // Set the sequence to continue from the max ID
+        await supabase.rpc('set_table_sequence', {
+          table_name: tableName,
+          seq_value: maxResult[0].id
+        });
+      }
+    }
+
+    const response = await supabase
+      .from(tableName)
+      .insert(data);
+
+    if (response.error) throw response.error;
+    return response.data;
+  } catch (error) {
+    console.error('Error inserting row:', error);
+    throw error;
+  }
 };
 
 export const getAddRowSchema = async (tableName: string) => {
   const { data, error } = await supabase
     .rpc('get_add_row_structure', { target_table: tableName });
-    
+
   if (error) {
     console.error('Error fetching add row schema:', error);
     throw error;
   }
-  
+
   return data || [];
 };
 
@@ -475,4 +518,3 @@ export const renameTable = async (oldName: string, newName: string) => {
      throw error;
   }
 };
-  

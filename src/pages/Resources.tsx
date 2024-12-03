@@ -95,17 +95,17 @@ const Resources = () => {
     try {
       // Check if table already exists
       const exists = await checkTableExists(tableName);
-      
+
       if (exists) {
         throw new Error(`A table named "${tableName}" already exists. Please choose a different name.`);
       }
 
       // Create the table
       await createDatabaseTable(tableName, fields);
-      
+
       // Add to master_tables
       await addToMasterTables(tableName);
-      
+
       // Update local state
       setTables([...tables, tableName]);
       setShowTableBuilder(false);
@@ -117,7 +117,7 @@ const Resources = () => {
 
   const handleDeleteTable = async () => {
     if (!tableToDelete) return;
-    
+
     try {
       await deleteTable(tableToDelete);
       setTables(tables.filter(t => t !== tableToDelete));
@@ -131,23 +131,37 @@ const Resources = () => {
   const handleRenameTable = async (oldName: string, newName: string) => {
     try {
       await renameTable(oldName, newName);
-      
+
       // Update local state
-      setTables(prevTables => 
+      setTables(prevTables =>
         prevTables.map(table => table === oldName ? newName : table)
       );
-      
+
       // If the table being renamed is currently open, update its name
       if (currentTable === oldName) {
         setCurrentTable(newName);
       }
-      
+
       setTableToRename(null);
     } catch (error) {
       console.error('Error renaming table:', error);
       alert(error instanceof Error ? error.message : 'Failed to rename table');
     }
   };
+
+  const loadTables = async () => {
+    try {
+      const tableList = await fetchTables();
+      setTables(tableList);
+    } catch (error) {
+      console.error('Error loading tables:', error);
+    }
+  };
+
+  // Call this when mounting the component
+  useEffect(() => {
+    loadTables();
+  }, []);
 
   if (showTableView) {
     return (
@@ -197,7 +211,7 @@ const Resources = () => {
       className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
     >
       <div className="flex items-center justify-between mb-4">
-        <div 
+        <div
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => setCurrentTable(table)}
         >
@@ -235,6 +249,7 @@ const Resources = () => {
           <TableBuilder
             onClose={() => setShowTableBuilder(false)}
             onSubmit={handleCreateTable}
+            onTableCreated={loadTables}
           />
         )}
 
