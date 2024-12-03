@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../supabaseClient';
 import { User, NewUser } from '../../types/user';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-);
 
 const getCurrentUserAccount = async () => {
   const { data: { user } } = await supabase.auth.getUser();
