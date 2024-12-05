@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { User } from '@supabase/supabase-js';
+import { initializeUsetiful } from '../utils/usetiful';
 
 interface AuthContextType {
   user: User | null;
@@ -48,6 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
+
+  useEffect(() => {
+    if (user) {
+      initializeUsetiful();
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, signIn, signOut, loading }}>
