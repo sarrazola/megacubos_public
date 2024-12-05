@@ -19,6 +19,8 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [schema, setSchema] = useState<ColumnSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadTableSchema();
@@ -28,17 +30,18 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
     try {
       const schemaData = await getAddRowSchema(tableName);
       setSchema(schemaData);
-      
-      // Initialize form data with null values
-      const initialData = schemaData.reduce((acc, col) => {
-        // Don't initialize id field since it's auto-generated
+
+      // Initialize form data with empty values instead of null
+      const initialData = schemaData.reduce((acc: Record<string, any>, col: ColumnSchema) => {
         if (col.name === 'id') {
-          acc[col.name] = 'Auto-generated';
+          // Show placeholder for auto-generated ID
+          acc[col.name] = '';  // Empty string will show our placeholder
         } else {
-          acc[col.name] = col.required ? '' : null;
+          acc[col.name] = ''; // Set empty string by default instead of null
         }
         return acc;
-      }, {} as Record<string, any>);
+      }, {});
+
       setFormData(initialData);
       setIsLoading(false);
     } catch (error) {
@@ -51,11 +54,32 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit(formData);
+      setSaving(true);
+      setError(null);
+
+      // Only include non-empty values in submission
+      const dataToSubmit = Object.entries(formData).reduce((acc: Record<string, any>, [key, value]) => {
+        // Include ID only if it has a value
+        if (key === 'id') {
+          if (value && value.trim() !== '') {
+            acc[key] = value;
+          }
+        } else {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+
+      await onSubmit(dataToSubmit);
       onClose();
-    } catch (error) {
-      console.error('Error adding row:', error);
-      alert('Failed to add row');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to add row. Please try again.');
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -90,13 +114,13 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">{column.type}</span>
-                    {!column.required && (
+                    {!column.required && column.name !== 'id' && (
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-gray-500">Null</span>
                         <input
                           type="checkbox"
                           checked={formData[column.name] === null}
-                          onChange={(e) => 
+                          onChange={(e) =>
                             handleInputChange(column.name, e.target.checked ? null : '')
                           }
                           className="rounded border-gray-300"
@@ -110,8 +134,9 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
                   value={formData[column.name] || ''}
                   onChange={(e) => handleInputChange(column.name, e.target.value)}
                   disabled={formData[column.name] === null}
-                  required={column.required && formData[column.name] !== null}
+                  required={column.name !== 'id' && column.required && formData[column.name] !== null}
                   className="mt-1 w-full border rounded-lg px-3 py-2 disabled:bg-gray-100"
+                  placeholder={column.name === 'id' ? 'Auto-generated' : ''}
                 />
               </div>
             ))}
@@ -134,6 +159,11 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
           </div>
         </form>
       </div>
+      {error && (
+        <div className="text-red-500 mb-4 p-2 bg-red-100 rounded">
+          {error}
+        </div>
+      )}
     </div>
   );
 };
@@ -153,4 +183,4 @@ const getInputType = (dataType: string): string => {
   }
 };
 
-export default AddRowModal; 
+export default AddRowModal;
