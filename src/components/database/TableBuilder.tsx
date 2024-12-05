@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
+import { createDatabaseTable } from '../../services/api/database';
 
 interface TableBuilderProps {
   onClose: () => void;
   onSubmit: (tableName: string, fields: any[]) => void;
+  onTableCreated?: () => void;
 }
 
-const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit }) => {
+const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableCreated }) => {
   const [tableName, setTableName] = useState('');
   const [fields, setFields] = useState([
     { name: '', type: 'text', required: false }
   ]);
+  const [error, setError] = useState<string | null>(null);
 
   const fieldTypes = [
     'text',
@@ -36,9 +39,27 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit }) => {
     setFields(newFields);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(tableName, fields);
+    await handleCreateTable(tableName, fields);
+    onClose();
+  };
+
+  const handleCreateTable = async (tableName: string, fields: any[]) => {
+    try {
+      setError(null);
+      await createDatabaseTable(tableName, fields);
+      onTableCreated?.();
+      onClose();
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message.includes('already exists')) {
+          setError('A table with this name already exists. Please choose a different name.');
+        } else {
+          setError('Failed to create table. Please try again.');
+        }
+      }
+    }
   };
 
   return (
@@ -50,6 +71,12 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit }) => {
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        {error && (
+          <div className="text-red-500 mb-4 p-2 bg-red-100 rounded">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="mb-6">
