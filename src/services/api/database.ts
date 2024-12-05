@@ -118,18 +118,20 @@ export const addToMasterTables = async (tableName: string) => {
 
     if (userError) throw userError;
 
-    // Insert into master_tables with account_id
+    const normalizedName = normalizeTableName(tableName);
+
+    // Insert into master_tables with account_id using normalized name
     const { error } = await supabase
       .from('master_tables')
       .insert([{
-        table_name: tableName,
+        table_name: normalizedName,
         account_id: userAccount.account_id
       }])
       .single();
 
     // Handle unique constraint violation
     if (error?.code === '23505') { // PostgreSQL unique violation code
-      throw new Error(`Table "${tableName}" already exists for this account`);
+      throw new Error(`Table "${normalizedName}" already exists for this account`);
     }
 
     if (error) throw error;

@@ -31,13 +31,13 @@ const AddRowModal: React.FC<AddRowModalProps> = ({ onClose, onSubmit, tableName 
       const schemaData = await getAddRowSchema(tableName);
       setSchema(schemaData);
 
-      // Initialize form data with null values
+      // Initialize form data with empty values instead of null
       const initialData = schemaData.reduce((acc: Record<string, any>, col: ColumnSchema) => {
         if (col.name === 'id') {
           // Show placeholder for auto-generated ID
           acc[col.name] = '';  // Empty string will show our placeholder
         } else {
-          acc[col.name] = col.required ? '' : null;
+          acc[col.name] = ''; // Set empty string by default instead of null
         }
         return acc;
       }, {});
