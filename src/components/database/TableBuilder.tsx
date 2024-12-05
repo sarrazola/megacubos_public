@@ -62,6 +62,23 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
     }
   };
 
+  const handleTableNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.includes(' ')) {
+      alert('Spaces are not allowed in table names');
+      return;
+    }
+    setTableName(value);
+  };
+
+  const handleFieldNameChange = (index: number, value: string) => {
+    if (value.includes(' ')) {
+      alert('Spaces are not allowed in field names');
+      return;
+    }
+    updateField(index, { ...fields[index], name: value });
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
@@ -86,7 +103,7 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
             <input
               type="text"
               value={tableName}
-              onChange={(e) => setTableName(e.target.value)}
+              onChange={handleTableNameChange}
               className="w-full border rounded-lg px-3 py-2"
               required
             />
@@ -110,9 +127,7 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
                 <input
                   type="text"
                   value={field.name}
-                  onChange={(e) =>
-                    updateField(index, { ...field, name: e.target.value })
-                  }
+                  onChange={(e) => handleFieldNameChange(index, e.target.value)}
                   className="flex-1 border rounded-lg px-3 py-2"
                   placeholder="Field name"
                   required
