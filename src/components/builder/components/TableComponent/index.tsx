@@ -52,7 +52,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ selectedCount, onConfirm, onC
 
 const TableComponent: React.FC<TableComponentProps> = ({
   data: initialData,
-  pageSize = 5,
+  pageSize = 10,
   onAddColumn,
   tableName,
   onRefresh,
