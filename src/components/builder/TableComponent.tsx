@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Eye, Trash2 } from 'lucide-react';
 import Pagination from '../common/Pagination';
 
 interface TableComponentProps {
   data: any[];
-  showActions?: boolean;
-  actionColumnLabel?: string;
-  actionButtonLabel?: string;
   pageSize?: number;
 }
 
@@ -17,9 +14,6 @@ interface SortConfig {
 
 const TableComponent: React.FC<TableComponentProps> = ({
   data,
-  showActions = true,
-  actionColumnLabel = 'Actions',
-  actionButtonLabel = 'View',
   pageSize = 10,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,11 +88,9 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   </div>
                 </th>
               ))}
-              {showActions && (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {actionColumnLabel}
-                </th>
-              )}
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -109,18 +101,26 @@ const TableComponent: React.FC<TableComponentProps> = ({
                     {cell}
                   </td>
                 ))}
-                {showActions && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex items-center gap-2">
                     <button 
-                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-blue-600 hover:text-blue-800"
                       onClick={() => {
-                        console.log('Action clicked for row:', row);
+                        console.log('View clicked for row:', row);
                       }}
                     >
-                      {actionButtonLabel}
+                      <Eye className="h-4 w-4" />
                     </button>
-                  </td>
-                )}
+                    <button 
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => {
+                        console.log('Delete clicked for row:', row);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
