@@ -4,6 +4,8 @@ import { fetchProducts } from '../../../../services/api/products';
 import Pagination from '../../../common/Pagination';
 import ColumnMenu from '../../../database/ColumnMenu';
 import { deleteColumn, updateTableCell } from '../../../../services/api/database';
+import RowDetailsPanel from './RowDetailsPanel';
+import { useRowDetailsStore } from '../../store/useRowDetailsStore';
 
 interface TableComponentProps {
   data: any[];
@@ -66,6 +68,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
   });
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [selectedRow, setSelectedRow] = useState<any | null>(null);
 
   useEffect(() => {
     setData(initialData);
@@ -344,6 +347,12 @@ const TableComponent: React.FC<TableComponentProps> = ({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
+        />
+      )}
+      {selectedRow && (
+        <RowDetailsPanel
+          data={selectedRow}
+          onClose={() => setSelectedRow(null)}
         />
       )}
     </div>

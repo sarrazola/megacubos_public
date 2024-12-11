@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Eye, Trash2 } from 'lucide-react';
 import Pagination from '../common/Pagination';
+import RowDetailsPanel from './components/TableComponent/RowDetailsPanel';
+import { useRowDetailsStore } from '../../store/useRowDetailsStore';
 
 interface TableComponentProps {
   data: any[];
@@ -21,6 +23,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     key: Object.keys(data[0] || {})[0],
     direction: 'desc'
   });
+  const { setSelectedRow } = useRowDetailsStore();
 
   const handleSort = (key: string) => {
     setSortConfig((prevConfig) => ({
@@ -107,6 +110,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                       className="text-blue-600 hover:text-blue-800"
                       onClick={() => {
                         console.log('View clicked for row:', row);
+                        setSelectedRow(row);
                       }}
                     >
                       <Eye className="h-4 w-4" />

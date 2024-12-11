@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import { usePageStore } from './store/usePageStore';
 import OnboardingWrapper from './components/layout/OnboardingWrapper';
+import RowDetailsPanel from './components/common/RowDetailsPanel';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ function AppContent() {
           {currentPage === 'settings' && <Settings />}
         </main>
       </div>
+      <RowDetailsPanel />
     </div>
   );
 }
