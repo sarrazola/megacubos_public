@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useCanvasStore } from '../../../../store/useCanvasStore';
 import { useCanvasesStore } from '../../../../store/useCanvasesStore';
-import { fetchProducts } from '../../../../services/api/products';
+import { fetchTables } from '../../../../services/api/database';
+import { getTableData } from '../../../../services/api/database';
 
 interface TablePropertiesProps {
   component: any;
@@ -12,10 +13,25 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
   const { currentCanvasId } = useCanvasesStore();
   const [dataSource, setDataSource] = useState(component.properties.dataSource || 'json');
   const [jsonData, setJsonData] = useState(component.properties.data || []);
+  const [availableTables, setAvailableTables] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (dataSource === 'products') {
-      loadProducts();
+    loadAvailableTables();
+  }, []);
+
+  const loadAvailableTables = async () => {
+    try {
+      const tables = await fetchTables();
+      setAvailableTables(tables);
+    } catch (error) {
+      console.error('Error loading tables:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (dataSource !== 'json') {
+      loadTableData(dataSource);
     } else {
       // Restore JSON data when switching back to JSON source
       updateComponentProperties(currentCanvasId, selectedComponent, {
@@ -25,17 +41,20 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
     }
   }, [dataSource]);
 
-  const loadProducts = async () => {
+  const loadTableData = async (tableName: string) => {
     try {
-      const productsData = await fetchProducts();
+      setLoading(true);
+      const tableData = await getTableData(tableName);
       updateComponentProperties(currentCanvasId, selectedComponent, {
-        data: productsData,
-        dataSource: 'products'
+        data: tableData,
+        dataSource: tableName
       });
     } catch (error) {
-      console.error('Error loading products:', error);
-      // Revert to JSON data source if products fetch fails
+      console.error('Error loading table data:', error);
+      // Revert to JSON data source if table data fetch fails
       setDataSource('json');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,7 +79,7 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
         </label>
         <input
           type="number"
-          value={component.properties.pageSize || 5}
+          value={component.properties.pageSize || 10}
           onChange={(e) => updateComponentProperties(currentCanvasId, selectedComponent, {
             pageSize: parseInt(e.target.value),
           })}
@@ -122,7 +141,11 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
           className="w-full border rounded-lg px-3 py-2"
         >
           <option value="json">JSON Data</option>
-          <option value="products">Products</option>
+          {availableTables.map(table => (
+            <option key={table} value={table}>
+              {table}
+            </option>
+          ))}
         </select>
       </div>
       {dataSource === 'json' && (
@@ -136,6 +159,11 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
             className="w-full border rounded-lg px-3 py-2 font-mono text-sm"
             rows={10}
           />
+        </div>
+      )}
+      {loading && (
+        <div className="text-sm text-gray-500">
+          Loading table data...
         </div>
       )}
     </div>
