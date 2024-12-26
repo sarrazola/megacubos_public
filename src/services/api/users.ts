@@ -18,26 +18,21 @@ const getCurrentUserAccount = async () => {
 export const fetchUsers = async (): Promise<User[]> => {
   const accountId = await getCurrentUserAccount();
 
-  // Get all user accounts
+  // Get all user accounts with emails using the secure function
   const { data: userAccounts, error } = await supabase
-    .from('user_accounts')
-    .select('*')
-    .eq('account_id', accountId)
-    .order('created_at', { ascending: false });
+    .rpc('get_user_accounts_with_email', {
+      account_id_param: accountId
+    });
 
   if (error) {
     console.error('Error fetching users:', error);
     throw error;
   }
 
-  // Get auth user data for email
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Map the data and include email from auth user
   return userAccounts.map((userAccount: any) => ({
     id: userAccount.id.toString(),
     name: userAccount.name,
-    email: userAccount.auth_user_id === user?.id ? user.email : '',  // Use email from auth user
+    email: userAccount.email || '',
     phone: userAccount.phone || '',
     role: userAccount.role || 'user',
     createdAt: userAccount.created_at,
