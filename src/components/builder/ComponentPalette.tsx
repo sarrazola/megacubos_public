@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDrag, DragPreviewImage } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { Table2, BarChart3, Type, Layout, Square, FileText, Image, Map, ChevronRight } from 'lucide-react';
+import { Table2, BarChart3, Type, Layout, Square, FileText, Image, Map, ChevronRight, Calendar } from 'lucide-react';
 
 interface DraggableComponentProps {
   type: string;
@@ -52,6 +52,7 @@ const ComponentPalette = () => {
     { type: 'pdf', icon: <FileText className="h-5 w-5" />, label: 'PDF Viewer' },
     { type: 'image', icon: <Image className="h-5 w-5" />, label: 'Image' },
     { type: 'map', icon: <Map className="h-5 w-5" />, label: 'Map' },
+    { type: 'calendar', icon: <Calendar className="h-5 w-5" />, label: 'Calendar' },
   ];
 
   return (
