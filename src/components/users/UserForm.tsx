@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { NewUser } from '../../types/user';
 
 interface UserFormProps {
-  onSubmit: (user: NewUser) => void;
+  onSubmit: (user: NewUser & { password: string }) => void;
   onClose: () => void;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onSubmit, onClose }) => {
-  const [formData, setFormData] = useState<NewUser>({
+  const [formData, setFormData] = useState<NewUser & { password: string }>({
     name: '',
     email: '',
     phone: '',
     role: 'user',
+    password: ''
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof NewUser, string>>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof (NewUser & { password: string }), string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
   const validateForm = () => {
-    const newErrors: Partial<Record<keyof NewUser, string>> = {};
+    const newErrors: Partial<Record<keyof (NewUser & { password: string }), string>> = {};
     
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
@@ -35,6 +38,12 @@ const UserForm: React.FC<UserFormProps> = ({ onSubmit, onClose }) => {
       newErrors.phone = 'Phone is required';
     }
 
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -44,11 +53,11 @@ const UserForm: React.FC<UserFormProps> = ({ onSubmit, onClose }) => {
     if (validateForm()) {
       try {
         setIsSubmitting(true);
+        setSubmitError('');
         await onSubmit(formData);
         onClose();
       } catch (error) {
-        console.error('Error submitting form:', error);
-        // Handle error appropriately
+        setSubmitError(error instanceof Error ? error.message : 'Failed to create user');
       } finally {
         setIsSubmitting(false);
       }
@@ -68,6 +77,13 @@ const UserForm: React.FC<UserFormProps> = ({ onSubmit, onClose }) => {
             <X className="h-5 w-5" />
           </button>
         </div>
+        
+        {submitError && (
+          <div className="mb-4 bg-red-50 text-red-600 p-4 rounded-lg flex items-center gap-2">
+            <AlertCircle className="h-5 w-5" />
+            {submitError}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -118,6 +134,36 @@ const UserForm: React.FC<UserFormProps> = ({ onSubmit, onClose }) => {
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
             )}
           </div>
           
