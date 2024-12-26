@@ -44,36 +44,61 @@ export const fetchUsers = async (): Promise<User[]> => {
   }));
 };
 
-export const createUser = async (user: NewUser): Promise<User> => {
-  const accountId = await getCurrentUserAccount();
-  const timestamp = new Date().toISOString();
-  
-  const { data, error } = await supabase
-    .from('user_accounts')
-    .insert([{
-      name: user.name,
+export const createUser = async (user: NewUser & { password: string }): Promise<User> => {
+  try {
+    const accountId = await getCurrentUserAccount();
+    
+    // 1. Create auth user
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: user.email,
-      phone: user.phone,
-      role: user.role,
-      created_at: timestamp,
-      account_id: accountId
-    }])
-    .select()
-    .single();
+      password: user.password,
+      options: {
+        data: {
+          name: user.name
+        }
+      }
+    });
 
-  if (error) {
+    if (authError) {
+      // Check specifically for user exists error
+      if (authError.message.includes('User already registered')) {
+        throw new Error('A user with this email already exists');
+      }
+      throw authError;
+    }
+
+    // 2. Create user_account
+    const { data, error } = await supabase
+      .from('user_accounts')
+      .insert([{
+        auth_user_id: authData.user.id,
+        account_id: accountId,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+        created_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      // If user_account creation fails, we should clean up the auth user
+      await supabase.auth.admin.deleteUser(authData.user.id);
+      throw error;
+    }
+
+    return {
+      id: data.id.toString(),
+      name: data.name,
+      email: user.email,
+      phone: data.phone || '',
+      role: data.role || 'user',
+      createdAt: data.created_at,
+    };
+  } catch (error) {
     console.error('Error creating user:', error);
     throw error;
   }
-
-  return {
-    id: data.id.toString(),
-    name: data.name,
-    email: data.email,
-    phone: data.phone || '',
-    role: data.role || 'user',
-    createdAt: data.created_at,
-  };
 };
 
 export const updateUser = async (id: string, updates: Partial<User>): Promise<User> => {
