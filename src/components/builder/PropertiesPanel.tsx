@@ -12,6 +12,7 @@ import ScorecardProperties from './components/ScorecardComponent/properties';
 import PDFProperties from './components/PDFComponent/properties';
 import ImageProperties from './components/ImageComponent/properties';
 import MapProperties from './components/MapComponent/properties';
+import CalendarProperties from './components/CalendarComponent/properties';
 
 const PropertiesPanel = () => {
   const { components, selectedComponent, selectComponent } = useCanvasStore();
@@ -34,6 +35,8 @@ const PropertiesPanel = () => {
         return <ScorecardProperties component={component} />;
       case 'pdf':
         return <PDFProperties component={component} />;
+      case 'calendar':
+        return <CalendarProperties component={component} />;
       case 'image':
         return <ImageProperties component={component} />;
       case 'map':

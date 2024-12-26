@@ -5,7 +5,7 @@ import { ResizableBox } from 'react-resizable';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import { GripVertical, TrendingUp, TrendingDown, Activity, AlertCircle, BarChart2, Box, DollarSign, Heart, LineChart as LineChartIcon, 
-  Package, ShoppingBag, ShoppingCart, Star, Truck, Users, Zap } from 'lucide-react';
+  Package, ShoppingBag, ShoppingCart, Star, Truck, Users, Zap, Calendar } from 'lucide-react';
 import {
   LineChart, Line,
   BarChart, Bar,
@@ -24,6 +24,7 @@ import TableComponent from './TableComponent';
 import ImageComponent from './ImageComponent';
 import 'react-resizable/css/styles.css';
 import MapComponent from './components/MapComponent';
+import CalendarComponent from './components/CalendarComponent/CalendarComponent';
 
 interface DraggableComponentProps {
   component: any;
@@ -51,7 +52,7 @@ const iconMap = {
 };
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEditorMode, isPreview }) => {
-  const { selectComponent, selectedComponent, updateComponentSize, updateComponentPosition } = useCanvasStore();
+  const { selectComponent, selectedComponent, updateComponentSize, updateComponentPosition, updateComponentProperties } = useCanvasStore();
   const { currentCanvasId } = useCanvasesStore();
 
   const [{ isDragging }, drag, preview] = useDrag(() => ({
@@ -216,7 +217,20 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
             pageSize={component.properties.pageSize}
           />
         );
-
+        case 'calendar':
+          return (
+            <CalendarComponent
+              events={component.properties?.events || []}
+              onEventAdd={(event) => {
+                const newEvent = { ...event, id: crypto.randomUUID() };
+                const updatedEvents = [...(component.properties?.events || []), newEvent];
+                updateComponentProperties(currentCanvasId, component.id, {
+                  ...component.properties,
+                  events: updatedEvents,
+                });
+              }}
+            />
+          );
       case 'chart':
         return (
           <div style={{ 
