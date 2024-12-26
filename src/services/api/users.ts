@@ -18,7 +18,8 @@ const getCurrentUserAccount = async () => {
 export const fetchUsers = async (): Promise<User[]> => {
   const accountId = await getCurrentUserAccount();
 
-  const { data, error } = await supabase
+  // Get all user accounts
+  const { data: userAccounts, error } = await supabase
     .from('user_accounts')
     .select('*')
     .eq('account_id', accountId)
@@ -29,13 +30,17 @@ export const fetchUsers = async (): Promise<User[]> => {
     throw error;
   }
 
-  return data.map((user: any) => ({
-    id: user.id.toString(),
-    name: user.name,
-    email: user.email,
-    phone: user.phone || '',
-    role: user.role || 'user',
-    createdAt: user.created_at,
+  // Get auth user data for email
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // Map the data and include email from auth user
+  return userAccounts.map((userAccount: any) => ({
+    id: userAccount.id.toString(),
+    name: userAccount.name,
+    email: userAccount.auth_user_id === user?.id ? user.email : '',  // Use email from auth user
+    phone: userAccount.phone || '',
+    role: userAccount.role || 'user',
+    createdAt: userAccount.created_at,
   }));
 };
 
