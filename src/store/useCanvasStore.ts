@@ -27,6 +27,7 @@ interface CanvasStore {
   updateComponentPosition: (canvasId: string, id: string, position: ComponentPosition) => void;
   updateComponentSize: (canvasId: string, id: string, size: ComponentSize) => void;
   removeComponent: (canvasId: string, id: string) => void;
+  duplicateComponent: (canvasId: string, id: string) => void;
   selectComponent: (id: string | null) => void;
   updateComponentProperties: (canvasId: string, id: string, properties: Record<string, any>) => void;
 }
@@ -116,6 +117,36 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
         selectedComponent: state.selectedComponent === id ? null : state.selectedComponent,
       };
       
+      saveCanvasComponents(canvasId, newComponents);
+      
+      return newState;
+    }),
+
+  duplicateComponent: (canvasId, id) =>
+    set((state) => {
+      const componentToDuplicate = state.components[canvasId]?.find((comp) => comp.id === id);
+      if (!componentToDuplicate) return state;
+
+      const newComponent = {
+        ...componentToDuplicate,
+        id: crypto.randomUUID(),
+        position: {
+          x: componentToDuplicate.position.x + 20,
+          y: componentToDuplicate.position.y + 20,
+        },
+      };
+
+      const newComponents = [...(state.components[canvasId] || []), newComponent];
+      
+      const newState = {
+        components: {
+          ...state.components,
+          [canvasId]: newComponents,
+        },
+        selectedComponent: newComponent.id,
+      };
+      
+      // Save to database
       saveCanvasComponents(canvasId, newComponents);
       
       return newState;
