@@ -5,6 +5,7 @@ import { useCanvasesStore } from '../../store/useCanvasesStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { fetchUsers } from '../../services/api/users';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabaseClient';
 
 const Sidebar = () => {
   const { currentPage, setCurrentPage } = usePageStore();
@@ -27,7 +28,7 @@ const Sidebar = () => {
   const [editingName, setEditingName] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   useEffect(() => {
     fetchCanvases().catch(error => {
@@ -36,18 +37,26 @@ const Sidebar = () => {
   }, [fetchCanvases]);
 
   useEffect(() => {
-    const loadCurrentUser = async () => {
+    const loadAuthenticatedUser = async () => {
+      if (!user) return;
+      
       try {
-        const users = await fetchUsers();
-        if (users.length > 0) {
-          setCurrentUser(users[0]);
-        }
+        const { data, error } = await supabase
+          .from('user_accounts')
+          .select('name, role')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (error) throw error;
+        
+        setCurrentUser(data);
       } catch (error) {
-        console.error('Failed to fetch current user:', error);
+        console.error('Failed to fetch authenticated user:', error);
       }
     };
-    loadCurrentUser();
-  }, []);
+
+    loadAuthenticatedUser();
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
