@@ -44,6 +44,11 @@ const getDefaultProperties = (type: string) => {
         latitude: 19.427040,  // Angel de la Independencia latitude
         longitude: -99.167654 // Angel de la Independencia longitude
       };
+    case 'calendar':
+      return {
+        events: [],
+        viewType: 'day'
+      };
     default:
       return {};
   }
