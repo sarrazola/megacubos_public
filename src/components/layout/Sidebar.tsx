@@ -130,11 +130,30 @@ const Sidebar = () => {
     }
   };
 
-  const menuItems = [
-    { icon: <LayoutDashboard />, label: 'Canvas', id: 'dashboard', hasSubMenu: true },
-    { icon: <Users />, label: 'Users', id: 'users' },
-    { icon: <Database />, label: 'Resources', id: 'resources' },
-  ];
+  const getMenuItems = () => {
+    const baseItems = [
+      { icon: <LayoutDashboard />, label: 'Canvas', id: 'dashboard', hasSubMenu: true },
+    ];
+
+    // Only show these items for creators
+    if (currentUser?.role === 'creator') {
+      baseItems.push(
+        { icon: <Users />, label: 'Users', id: 'users' },
+        { icon: <Database />, label: 'Resources', id: 'resources' }
+      );
+    }
+
+    return baseItems;
+  };
+
+  const handleUserMenuClick = (page: string) => {
+    // Only allow settings access for creators
+    if (page === 'settings' && currentUser?.role !== 'creator') {
+      return;
+    }
+    setCurrentPage(page);
+    setIsUserMenuOpen(false);
+  };
 
   return (
     <>
@@ -162,7 +181,7 @@ const Sidebar = () => {
         
         <nav className="flex-1">
           <ul className="space-y-2">
-            {menuItems.map((item) => (
+            {getMenuItems().map((item) => (
               <li key={item.id}>
                 <button
                   className={`flex items-center gap-3 p-2 w-full hover:bg-gray-800 rounded-lg transition-colors ${
@@ -298,16 +317,15 @@ const Sidebar = () => {
 
             {isUserMenuOpen && (
               <div className="absolute bottom-full left-0 w-full mb-2 bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-700">
-                <button
-                  onClick={() => {
-                    setCurrentPage('settings');
-                    setIsUserMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </button>
+                {currentUser.role === 'creator' && (
+                  <button
+                    onClick={() => handleUserMenuClick('settings')}
+                    className="w-full px-4 py-2 text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </button>
+                )}
                 <button
                   onClick={async () => {
                     try {
