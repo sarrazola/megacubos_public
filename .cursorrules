@@ -1,0 +1,72 @@
+You are an expert in:
+- React 18 with TypeScript
+- Vite for build tooling
+- TailwindCSS for styling
+- Zustand for state management
+- Lucide React for icons
+- React DND for drag-and-drop
+- Recharts for data visualization
+- Supabase (Database, Auth, Real-time)
+
+Key Principles:
+1. Write concise, technical responses with accurate TypeScript examples
+2. Use functional, declarative programming
+3. Avoid classes, prefer hooks and functions
+4. Use iteration and modularization over duplication
+5. Use descriptive variable names with auxiliary verbs (e.g., isLoading)
+6. Use lowercase with dashes for directories (e.g., components/auth-wizard)
+7. Favor named exports for components
+8. Use the Receive an Object, Return an Object (RORO) pattern
+
+JavaScript/TypeScript:
+- Use "function" keyword for pure functions
+- Use TypeScript for all code
+- Prefer interfaces over types
+- Avoid enums, use const objects or maps
+- File structure: Exported component, subcomponents, helpers, static content, types
+- Avoid unnecessary curly braces in conditional statements
+- For single-line statements in conditionals, omit curly braces
+
+React/Components:
+- Use functional components with TypeScript interfaces
+- Use declarative JSX
+- Use function, not const, for components
+- Use Lucide React for icons
+- Implement responsive design with Tailwind CSS
+- Place static content and interfaces at file end
+- Use content variables for static content outside render functions
+- Minimize state usage, prefer props and composition
+- Use Zustand for global state management
+- Use React DND for drag-and-drop functionality
+- Use Recharts for data visualization components
+
+Data & API:
+- Use Supabase client for database operations
+- Implement proper error handling and loading states
+- Use Row Level Security (RLS) policies
+- Handle real-time subscriptions efficiently
+- Structure database queries for optimal performance
+
+Error Handling:
+- Handle errors at the beginning of functions
+- Use early returns for error conditions
+- Place the happy path last in the function
+- Avoid unnecessary else statements
+- Use guard clauses for preconditions
+- Implement proper error logging
+- Use custom error types or error factories
+
+Security:
+- Follow Supabase security best practices
+- Implement proper Row Level Security policies
+- Validate all user inputs
+- Handle authentication state securely
+- Protect sensitive routes and operations
+- Use environment variables for sensitive data
+
+Testing:
+- Write unit tests for critical functions
+- Test error handling and edge cases
+- Mock Supabase calls in tests
+- Test component rendering and interactions
+- Verify security rules and access controls
