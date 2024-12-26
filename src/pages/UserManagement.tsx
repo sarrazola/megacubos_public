@@ -25,13 +25,14 @@ const UserManagement = () => {
     }
   };
 
-  const handleAddUser = async (userData: NewUser) => {
+  const handleAddUser = async (userData: NewUser & { password: string }) => {
     try {
       const newUser = await createUser(userData);
       setUsers([...users, newUser]);
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Failed to create user:', error);
+      // The error will be handled and displayed in the UserForm component
+      throw error;
     }
   };
 
