@@ -18,6 +18,13 @@ const Builder = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
+    return () => {
+      // Cleanup when component unmounts
+      useCanvasStore.getState().clearState();
+    };
+  }, []);
+
+  useEffect(() => {
     const checkUserRole = async () => {
       setIsLoading(true);
       try {
