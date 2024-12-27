@@ -45,22 +45,24 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
     case 'line':
       return (
         <ResponsiveContainer width="100%" height={height}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey={xAxis} />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey={yAxis}
-              stroke="#8884d8"
-              strokeWidth={strokeWidth}
-            />
-          </LineChart>
+          <div className="bg-white p-4 rounded-lg h-full">
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey={xAxis} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey={yAxis}
+                stroke="#8884d8"
+                strokeWidth={strokeWidth}
+              />
+            </LineChart>
+          </div>
         </ResponsiveContainer>
       );
 

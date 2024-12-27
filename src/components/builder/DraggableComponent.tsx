@@ -209,13 +209,15 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
     switch (component.type) {
       case 'table':
         return (
-          <TableComponent
-            data={component.properties.data || []}
-            showActions={component.properties.showActions}
-            actionColumnLabel={component.properties.actionColumnLabel}
-            actionButtonLabel={component.properties.actionButtonLabel}
-            pageSize={component.properties.pageSize}
-          />
+          <div className="bg-white h-full rounded-lg">
+            <TableComponent
+              data={component.properties.data || []}
+              showActions={component.properties.showActions}
+              actionColumnLabel={component.properties.actionColumnLabel}
+              actionButtonLabel={component.properties.actionButtonLabel}
+              pageSize={component.properties.pageSize}
+            />
+          </div>
         );
         case 'calendar':
           return (
@@ -233,9 +235,8 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           );
       case 'chart':
         return (
-          <div style={{ 
-            width: '100%', 
-            height: isEditorMode ? 'calc(100% - 16px)' : '100%'
+          <div className="bg-white h-full p-4 rounded-lg" style={{ 
+            width: '100%',
           }}>
             {renderChart()}
           </div>
@@ -363,12 +364,12 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
         handle={<div className="react-resizable-handle" />}
       >
         <div
-          className={`relative w-full h-full ${
-            isEditorMode ? 'bg-white rounded-lg shadow-lg' : ''
+          className={`relative w-full h-full rounded-lg ${
+            isEditorMode ? 'shadow-lg' : ''
           } ${isEditorMode && selectedComponent === component.id ? 'ring-2 ring-blue-500' : ''}`}
         >
           {isEditorMode && (
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-2 border-b">
+            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-2 bg-white border-b rounded-t-lg">
               <div ref={drag} className="drag-handle flex items-center gap-2">
                 <GripVertical className="h-4 w-4 text-gray-400" />
                 <span className="text-sm text-gray-600 capitalize">{component.type}</span>
@@ -376,11 +377,11 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
               <ComponentActions componentId={component.id} stopPropagation={stopPropagation} />
             </div>
           )}
-           <div 
+          <div 
             className="component-content"
             style={{
               height: '100%',
-              padding: isEditorMode ? '48px 16px 16px 16px' : '16px',
+              padding: isEditorMode ? '48px 0 0 0' : '0',
               overflowY: 'auto'
             }}
           >
