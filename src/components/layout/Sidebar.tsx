@@ -206,92 +206,94 @@ const Sidebar = () => {
                           >
                             {canvas.name}
                           </button>
-                          <div className="relative canvas-menu">
-                            <button
-                              onClick={() => {
-                                setOpenMenu(openMenu === canvas.id ? null : canvas.id);
-                                setConfirmingDelete(null);
-                                setEditingCanvasId(null);
-                              }}
-                              className="p-1 text-gray-400 hover:text-gray-200 rounded"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </button>
-                            {openMenu === canvas.id && (
-                              <div className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg py-1 z-50">
-                                {editingCanvasId === canvas.id ? (
-                                  <div className="px-4 py-2 space-y-2">
-                                    <input
-                                      type="text"
-                                      value={editingName}
-                                      onChange={(e) => setEditingName(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      className="w-full px-2 py-1 text-gray-900 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                      autoFocus
-                                    />
-                                    <div className="flex gap-2">
-                                      <button
-                                        onClick={handleSaveCanvasName}
-                                        className="flex-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                      >
-                                        Save
-                                      </button>
-                                      <button
-                                        onClick={() => setEditingCanvasId(null)}
-                                        className="flex-1 px-2 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600"
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <button
-                                      onClick={() => handleStartEditing(canvas)}
-                                      className="w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
-                                    >
-                                      <Pencil className="h-4 w-4" />
-                                      Rename
-                                    </button>
-                                    <button
-                                      onClick={() => handleDuplicateCanvas(canvas.id)}
-                                      className="w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
-                                    >
-                                      <Copy className="h-4 w-4" />
-                                      Duplicate
-                                    </button>
-                                    {confirmingDelete === canvas.id ? (
-                                      <div className="px-4 py-2 space-y-2">
-                                        <p className="text-sm text-gray-300">Delete this canvas?</p>
-                                        <div className="flex gap-2">
-                                          <button
-                                            onClick={() => confirmDelete(canvas.id)}
-                                            className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-                                          >
-                                            Yes, delete
-                                          </button>
-                                          <button
-                                            onClick={() => setConfirmingDelete(null)}
-                                            className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600"
-                                          >
-                                            Cancel
-                                          </button>
-                                        </div>
+                          {currentUser?.role === 'creator' && (
+                            <div className="relative canvas-menu">
+                              <button
+                                onClick={() => {
+                                  setOpenMenu(openMenu === canvas.id ? null : canvas.id);
+                                  setConfirmingDelete(null);
+                                  setEditingCanvasId(null);
+                                }}
+                                className="p-1 text-gray-400 hover:text-gray-200 rounded"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </button>
+                              {openMenu === canvas.id && (
+                                <div className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg py-1 z-50">
+                                  {editingCanvasId === canvas.id ? (
+                                    <div className="px-4 py-2 space-y-2">
+                                      <input
+                                        type="text"
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        className="w-full px-2 py-1 text-gray-900 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        autoFocus
+                                      />
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={handleSaveCanvasName}
+                                          className="flex-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          onClick={() => setEditingCanvasId(null)}
+                                          className="flex-1 px-2 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600"
+                                        >
+                                          Cancel
+                                        </button>
                                       </div>
-                                    ) : (
+                                    </div>
+                                  ) : (
+                                    <>
                                       <button
-                                        onClick={() => handleDeleteCanvas(canvas.id)}
-                                        className="w-full px-4 py-2 text-sm text-left text-red-400 hover:bg-gray-700 flex items-center gap-2"
+                                        onClick={() => handleStartEditing(canvas)}
+                                        className="w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
                                       >
-                                        <Trash2 className="h-4 w-4" />
-                                        Delete
+                                        <Pencil className="h-4 w-4" />
+                                        Rename
                                       </button>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                                      <button
+                                        onClick={() => handleDuplicateCanvas(canvas.id)}
+                                        className="w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 flex items-center gap-2"
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                        Duplicate
+                                      </button>
+                                      {confirmingDelete === canvas.id ? (
+                                        <div className="px-4 py-2 space-y-2">
+                                          <p className="text-sm text-gray-300">Delete this canvas?</p>
+                                          <div className="flex gap-2">
+                                            <button
+                                              onClick={() => confirmDelete(canvas.id)}
+                                              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                                            >
+                                              Yes, delete
+                                            </button>
+                                            <button
+                                              onClick={() => setConfirmingDelete(null)}
+                                              className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600"
+                                            >
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={() => handleDeleteCanvas(canvas.id)}
+                                          className="w-full px-4 py-2 text-sm text-left text-red-400 hover:bg-gray-700 flex items-center gap-2"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                          Delete
+                                        </button>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </li>
                     ))}
