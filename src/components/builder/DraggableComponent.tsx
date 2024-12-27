@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ResizableBox } from 'react-resizable';
@@ -54,6 +54,7 @@ const iconMap = {
 const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEditorMode, isPreview }) => {
   const { selectComponent, selectedComponent, updateComponentSize, updateComponentPosition, updateComponentProperties } = useCanvasStore();
   const { currentCanvasId } = useCanvasesStore();
+  const canvasRef = useRef<HTMLDivElement>(document.getElementById('canvas-drop-target'));
 
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: 'MOVE_COMPONENT',
@@ -331,6 +332,24 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
     }
   };
 
+  const handleResize = (e: React.SyntheticEvent, { size }: { size: { width: number; height: number } }) => {
+    e.stopPropagation();
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
+    
+    if (canvasRect) {
+      // Constrain size to keep component within canvas
+      const maxWidth = canvasRect.width - component.position.x;
+      const maxHeight = canvasRect.height - component.position.y;
+      
+      const constrainedSize = {
+        width: Math.min(size.width, maxWidth),
+        height: Math.min(size.height, maxHeight)
+      };
+      
+      updateComponentSize(currentCanvasId, component.id, constrainedSize);
+    }
+  };
+
   return (
     <div
       style={{
@@ -348,10 +367,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
       <ResizableBox
         width={component.size.width}
         height={component.size.height}
-        onResize={(e, { size }) => {
-          e.stopPropagation();
-          updateComponentSize(currentCanvasId, component.id, { width: size.width, height: size.height });
-        }}
+        onResize={handleResize}
         minConstraints={[
           component.type === 'button' ? 80 : 200,
           component.type === 'button' ? 32 : (component.type === 'scorecard' ? 120 : 100)
