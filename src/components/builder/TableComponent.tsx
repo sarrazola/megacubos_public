@@ -80,14 +80,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="overflow-x-auto flex-grow">
+      <div className="overflow-x-auto flex-grow rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-        <thead className="sticky top-0 bg-white z-10">
-            <tr>
+          <thead className="sticky top-0 bg-white z-10">
+            <tr className="[&>th:first-child]:rounded-tl-lg [&>th:last-child]:rounded-tr-lg">
               {currentData[0] && Object.keys(currentData[0]).map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 border-x border-gray-200"
                   onClick={() => handleSort(header)}
                 >
                   <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   </div>
                 </th>
               ))}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-x border-gray-200">
                 Actions
               </th>
             </tr>
@@ -108,12 +108,13 @@ const TableComponent: React.FC<TableComponentProps> = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {currentData.map((row, idx) => {
               const rowKey = getRowKey(row, startIndex + idx);
+              const isLastRow = idx === currentData.length - 1;
               return (
                 <tr
                   key={rowKey}
                   className={`transition-colors duration-150 ${
                     hoveredRow === rowKey ? 'bg-blue-50' : 'hover:bg-gray-50'
-                  }`}
+                  } ${isLastRow ? '[&>td:first-child]:rounded-bl-lg [&>td:last-child]:rounded-br-lg' : ''}`}
                   onMouseEnter={() => handleRowMouseEnter(rowKey, row)}
                   onMouseLeave={handleRowMouseLeave}
                 >
