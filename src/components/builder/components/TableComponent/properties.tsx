@@ -77,7 +77,7 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
         </label>
         <input
           type="number"
-          value={component.properties.pageSize || 10}
+          value={component.properties.pageSize || 50}
           onChange={(e) => updateComponentProperties(currentCanvasId, selectedComponent, {
             pageSize: parseInt(e.target.value),
           })}
