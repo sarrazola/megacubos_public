@@ -16,7 +16,7 @@ interface SortConfig {
 
 const TableComponent: React.FC<TableComponentProps> = ({
   data,
-  pageSize = 10,
+  pageSize = 50,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -82,7 +82,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     <div className="flex flex-col h-full">
       <div className="overflow-x-auto flex-grow">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead>
+        <thead className="sticky top-0 bg-white z-10">
             <tr>
               {currentData[0] && Object.keys(currentData[0]).map((header) => (
                 <th
