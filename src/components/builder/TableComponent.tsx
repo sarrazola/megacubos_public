@@ -23,6 +23,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
     key: Object.keys(data[0] || {})[0],
     direction: 'desc'
   });
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { setSelectedRow } = useRowDetailsStore();
 
   const handleSort = (key: string) => {
@@ -69,6 +70,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
     );
   };
 
+  const handleRowMouseEnter = (rowKey: string, rowData: any) => {
+    setHoveredRow(rowKey);
+  };
+
+  const handleRowMouseLeave = () => {
+    setHoveredRow(null);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="overflow-x-auto flex-grow">
@@ -97,36 +106,48 @@ const TableComponent: React.FC<TableComponentProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentData.map((row, idx) => (
-              <tr key={getRowKey(row, startIndex + idx)}>
-                {Object.values(row).map((cell: any, i: number) => (
-                  <td key={`${getRowKey(row, startIndex + idx)}-col-${i}`} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {cell}
+            {currentData.map((row, idx) => {
+              const rowKey = getRowKey(row, startIndex + idx);
+              return (
+                <tr
+                  key={rowKey}
+                  className={`transition-colors duration-150 ${
+                    hoveredRow === rowKey ? 'bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
+                  onMouseEnter={() => handleRowMouseEnter(rowKey, row)}
+                  onMouseLeave={handleRowMouseLeave}
+                >
+                  {Object.values(row).map((cell: any, i: number) => (
+                    <td 
+                      key={`${rowKey}-col-${i}`} 
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => {
+                          setSelectedRow(row);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button 
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => {
+                          console.log('Delete clicked for row:', row);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
-                ))}
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <button 
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        console.log('View clicked for row:', row);
-                        setSelectedRow(row);
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button 
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => {
-                        console.log('Delete clicked for row:', row);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
