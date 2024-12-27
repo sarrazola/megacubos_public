@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { User } from '@supabase/supabase-js';
 import { initializeUsetiful } from '../utils/usetiful';
+import { useCanvasStore } from '../store/useCanvasStore';
 
 interface AuthContextType {
   user: User | null;
@@ -46,8 +47,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      await supabase.auth.signOut();
+      useCanvasStore.getState().clearState();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
   };
 
   useEffect(() => {

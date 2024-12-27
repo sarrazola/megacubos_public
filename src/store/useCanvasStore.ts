@@ -30,6 +30,7 @@ interface CanvasStore {
   duplicateComponent: (canvasId: string, id: string) => void;
   selectComponent: (id: string | null) => void;
   updateComponentProperties: (canvasId: string, id: string, properties: Record<string, any>) => void;
+  clearState: () => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -38,6 +39,14 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   
   initializeCanvas: async (canvasId: string) => {
     try {
+      // Clear existing components for this canvas
+      set(state => ({
+        components: {
+          ...state.components,
+          [canvasId]: [] // Reset components for this specific canvas
+        }
+      }));
+      
       const components = await fetchCanvasComponents(canvasId);
       set(state => ({
         components: {
@@ -171,4 +180,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       
       return newState;
     }),
+
+  clearState: () => set({
+    components: {},
+    selectedComponent: null
+  }),
 }));
