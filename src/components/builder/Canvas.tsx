@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
@@ -55,6 +55,7 @@ const getDefaultProperties = (type: string) => {
 };
 
 const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
+  const canvasRef = useRef<HTMLDivElement>(null);
   const { currentCanvasId } = useCanvasesStore();
   const components = useCanvasStore((state) => state.components[currentCanvasId] || []);
   const addComponent = useCanvasStore((state) => state.addComponent);
@@ -62,6 +63,20 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
   const selectComponent = useCanvasStore((state) => state.selectComponent);
   const initializeCanvas = useCanvasStore((state) => state.initializeCanvas);
   const [error, setError] = useState<string | null>(null);
+
+  // Function to constrain position within canvas bounds
+  const constrainPosition = (position: { x: number; y: number }, componentSize: { width: number; height: number }) => {
+    if (!canvasRef.current) return position;
+
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const maxX = canvasRect.width - componentSize.width;
+    const maxY = canvasRect.height - componentSize.height;
+
+    return {
+      x: Math.max(0, Math.min(position.x, maxX)),
+      y: Math.max(0, Math.min(position.y, maxY))
+    };
+  };
 
   useEffect(() => {
     if (currentCanvasId) {
@@ -84,28 +99,30 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
     accept: ['COMPONENT', 'MOVE_COMPONENT'],
     drop: (item: { type: string; id?: string }, monitor) => {
       const offset = monitor.getClientOffset();
-      if (!offset || !currentCanvasId) return;
+      if (!offset || !currentCanvasId || !canvasRef.current) return;
 
-      const dropTarget = document.getElementById('canvas-drop-target');
-      const dropTargetRect = dropTarget?.getBoundingClientRect();
-      
-      if (!dropTargetRect) return;
-
+      const canvasRect = canvasRef.current.getBoundingClientRect();
       const position = {
-        x: offset.x - dropTargetRect.left,
-        y: offset.y - dropTargetRect.top,
+        x: offset.x - canvasRect.left,
+        y: offset.y - canvasRect.top,
       };
 
       if (item.id) {
         // Moving existing component
-        updateComponentPosition(currentCanvasId, item.id, position);
+        const component = components.find(c => c.id === item.id);
+        if (component) {
+          const constrainedPosition = constrainPosition(position, component.size);
+          updateComponentPosition(currentCanvasId, item.id, constrainedPosition);
+        }
       } else {
         // Adding new component
+        const size = getDefaultSize(item.type);
+        const constrainedPosition = constrainPosition(position, size);
         const newComponent = {
           id: crypto.randomUUID(),
           type: item.type,
-          position,
-          size: getDefaultSize(item.type),
+          position: constrainedPosition,
+          size,
           properties: getDefaultProperties(item.type),
         };
         addComponent(currentCanvasId, newComponent);
@@ -114,13 +131,16 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
-  }), [currentCanvasId, addComponent, updateComponentPosition]);
+  }), [currentCanvasId, addComponent, updateComponentPosition, components]);
 
   return (
     <div
       id="canvas-drop-target"
-      ref={drop}
-      className={`relative w-full h-[calc(100vh-4rem)] border-2 rounded-lg ${
+      ref={(node) => {
+        canvasRef.current = node;
+        drop(node);
+      }}
+      className={`relative w-full h-[calc(100vh-4rem)] border-2 rounded-lg overflow-hidden ${
         isOver ? 'border-blue-500' : 'border-gray-200'
       } bg-gray-50`}
     >
