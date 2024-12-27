@@ -62,10 +62,63 @@ const Builder = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-gray-500">Loading dashboard...</p>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-gray-50">
+        <div className="relative flex flex-col items-center gap-6 p-8 text-center">
+          {/* Animated cubes background */}
+          <div className="absolute inset-0 -z-10">
+            <div 
+              className="absolute backdrop-blur-sm border border-blue-100/20 rounded-xl animate-float-1"
+              style={{
+                background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(30, 41, 59, 0.2) 100%)',
+                width: '120px',
+                height: '120px',
+                left: '10%',
+                top: '20%',
+                transform: 'rotate(45deg)',
+                transformStyle: 'preserve-3d',
+                perspective: '1000px',
+              }}
+            />
+            <div 
+              className="absolute backdrop-blur-sm border border-purple-100/20 rounded-xl animate-float-2"
+              style={{
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(30, 41, 59, 0.2) 100%)',
+                width: '100px',
+                height: '100px',
+                right: '15%',
+                bottom: '30%',
+                transform: 'rotate(-30deg)',
+                transformStyle: 'preserve-3d',
+                perspective: '1000px',
+              }}
+            />
+          </div>
+
+          {/* Loading icon */}
+          <div className="relative">
+            <div className="absolute inset-0 animate-ping-slow opacity-75">
+              <img 
+                src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Logo.png"
+                alt="Logo"
+                className="h-16 w-16 opacity-50"
+              />
+            </div>
+            <img 
+              src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Logo.png"
+              alt="Logo"
+              className="h-16 w-16 animate-pulse"
+            />
+          </div>
+
+          {/* Loading text */}
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-gray-700">
+              Loading your dashboard
+            </h3>
+            <p className="text-gray-500">
+              Preparing your workspace...
+            </p>
+          </div>
         </div>
       </div>
     );
