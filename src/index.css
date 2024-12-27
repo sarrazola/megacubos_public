@@ -48,14 +48,14 @@
 }
 
 .component-content {
-  pointer-events: none;
+  pointer-events: all !important;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .component-content > * {
-  pointer-events: auto;
+  pointer-events: auto !important;
 }
 
 .drag-handle {
