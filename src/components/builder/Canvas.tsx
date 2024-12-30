@@ -7,6 +7,10 @@ import { getDefaultSize } from '../../utils/componentSizes';
 
 const getDefaultProperties = (type: string) => {
   switch (type) {
+    case 'pdf':
+      return {
+        url: 'https://pdfobject.com/pdf/sample.pdf'
+      };
     case 'chart':
       return {
         visualization: 'line',
