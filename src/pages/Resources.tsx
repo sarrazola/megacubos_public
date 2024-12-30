@@ -13,6 +13,7 @@ interface ResourceCard {
   icon: React.ReactNode | string;
   description: string;
   type: 'database' | 'api';
+  comingSoon?: boolean;
 }
 
 const Resources = () => {
@@ -60,7 +61,7 @@ const Resources = () => {
     {
       id: 'postgres',
       name: 'PostgreSQL',
-      icon: <Database className="h-8 w-8 text-blue-500" />,
+      icon: <img src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/posgresql_logo.webp" alt="PostgreSQL" className="h-8 w-8" />,
       description: 'Open-source relational database',
       type: 'database',
     },
@@ -70,6 +71,7 @@ const Resources = () => {
       icon: <Globe2 className="h-8 w-8 text-purple-500" />,
       description: 'RESTful API endpoints',
       type: 'api',
+      comingSoon: true,
     },
     {
       id: 'graphql',
@@ -77,6 +79,7 @@ const Resources = () => {
       icon: <Boxes className="h-8 w-8 text-pink-500" />,
       description: 'Query language for APIs',
       type: 'api',
+      comingSoon: true,
     },
   ];
 
@@ -298,16 +301,25 @@ const Resources = () => {
         {resources.map((resource) => (
           <div
             key={resource.id}
-            onClick={() => handleResourceClick(resource.id)}
-            className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
+            onClick={() => !resource.comingSoon && handleResourceClick(resource.id)}
+            className={`bg-white rounded-lg shadow-lg p-6 ${!resource.comingSoon ? 'hover:shadow-xl transition-shadow cursor-pointer' : 'opacity-75'}`}
           >
-            <div className="flex items-center gap-4 mb-4">
-              {typeof resource.icon === 'string' ? (
-                <img src={resource.icon} alt={resource.name} className="h-8 w-8" />
-              ) : (
-                resource.icon
-              )}
-              <h3 className="text-lg font-semibold">{resource.name}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                {typeof resource.icon === 'string' ? (
+                  <img src={resource.icon} alt={resource.name} className="h-8 w-8" />
+                ) : (
+                  resource.icon
+                )}
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold">{resource.name}</h3>
+                  {resource.comingSoon && (
+                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded-full">
+                      Soon
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
             <p className="text-gray-600">{resource.description}</p>
           </div>
