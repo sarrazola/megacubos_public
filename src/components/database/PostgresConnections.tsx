@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Database, ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import PostgresConnectionModal from './PostgresConnectionModal';
+import ExternalPostgresTables from './ExternalPostgresTables';
 
 interface PostgresConnectionsProps {
   onBack: () => void;
@@ -11,8 +12,10 @@ interface Connection {
   id: number;
   connection_name: string;
   host: string;
+  port: string;
   db_name: string;
   db_username: string;
+  db_password: string;
   created_at: string;
 }
 
@@ -21,6 +24,7 @@ const PostgresConnections: React.FC<PostgresConnectionsProps> = ({ onBack }) => 
   const [showAddModal, setShowAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [connectionToDelete, setConnectionToDelete] = useState<number | null>(null);
+  const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
 
   const loadConnections = async () => {
     try {
@@ -37,7 +41,7 @@ const PostgresConnections: React.FC<PostgresConnectionsProps> = ({ onBack }) => 
 
       const { data, error } = await supabase
         .from('database_auth_settings')
-        .select('id, connection_name, host, db_name, db_username, created_at')
+        .select('id, connection_name, host, port, db_name, db_username, db_password, created_at')
         .eq('accounts_id', userAccount.account_id)
         .order('created_at', { ascending: false });
 
@@ -69,6 +73,26 @@ const PostgresConnections: React.FC<PostgresConnectionsProps> = ({ onBack }) => 
       alert('Failed to delete connection');
     }
   };
+
+  const handleConnectionClick = (connection: Connection) => {
+    console.log('Connection details:', {
+      host: connection.host,
+      port: connection.port,
+      db_name: connection.db_name,
+      username: connection.db_username
+      // Don't log the password
+    });
+    setSelectedConnection(connection);
+  };
+
+  if (selectedConnection) {
+    return (
+      <ExternalPostgresTables
+        connection={selectedConnection}
+        onBack={() => setSelectedConnection(null)}
+      />
+    );
+  }
 
   return (
     <div className="p-6">
@@ -118,7 +142,8 @@ const PostgresConnections: React.FC<PostgresConnectionsProps> = ({ onBack }) => 
           {connections.map((connection) => (
             <div
               key={connection.id}
-              className="bg-white rounded-lg shadow-lg p-6"
+              className="bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow"
+              onClick={() => handleConnectionClick(connection)}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -180,4 +205,4 @@ const PostgresConnections: React.FC<PostgresConnectionsProps> = ({ onBack }) => 
   );
 };
 
-export default PostgresConnections; 
+export default PostgresConnections;
