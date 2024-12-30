@@ -25,6 +25,7 @@ import ImageComponent from './ImageComponent';
 import 'react-resizable/css/styles.css';
 import MapComponent from './components/MapComponent';
 import CalendarComponent from './components/CalendarComponent/CalendarComponent';
+import { useGuidelinesStore } from '../../store/useGuidelinesStore';
 
 interface DraggableComponentProps {
   component: any;
@@ -58,7 +59,17 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
 
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: 'MOVE_COMPONENT',
-    item: { id: component.id, type: component.type },
+    item: () => {
+      useGuidelinesStore.getState().setShowGuidelines(true);
+      return { 
+        id: component.id, 
+        type: component.type 
+      };
+    },
+    end: () => {
+      useGuidelinesStore.getState().setShowGuidelines(false);
+      useGuidelinesStore.getState().setGuidelines({ vertical: [], horizontal: [] });
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
