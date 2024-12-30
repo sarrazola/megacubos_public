@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { createDatabaseTable } from '../../services/api/database';
+import { isReservedWord } from '../../utils/database';
 
 interface TableBuilderProps {
   onClose: () => void;
@@ -41,6 +42,16 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate field names for reserved words before creating table
+    const reservedWordFields = fields.filter(field => isReservedWord(field.name));
+    
+    if (reservedWordFields.length > 0) {
+      const fieldNames = reservedWordFields.map(f => `"${f.name}"`).join(', ');
+      setError(`Cannot create table: ${fieldNames} ${reservedWordFields.length > 1 ? 'are' : 'is'} PostgreSQL reserved ${reservedWordFields.length > 1 ? 'words' : 'word'}. Please choose different field names.`);
+      return;
+    }
+
     await handleCreateTable(tableName, fields);
     onClose();
   };

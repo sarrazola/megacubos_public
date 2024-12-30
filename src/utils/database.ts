@@ -26,3 +26,22 @@ export const isValidTableName = (tableName: string): boolean => {
   const validPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
   return validPattern.test(tableName);
 };
+
+const POSTGRESQL_RESERVED_WORDS = [
+  'all', 'analyse', 'analyze', 'and', 'any', 'array', 'as', 'asc', 'asymmetric',
+  'authorization', 'between', 'binary', 'both', 'case', 'cast', 'check', 'collate',
+  'column', 'constraint', 'create', 'cross', 'current_date', 'current_role',
+  'current_time', 'current_timestamp', 'current_user', 'default', 'deferrable',
+  'desc', 'distinct', 'do', 'else', 'end', 'except', 'false', 'for', 'foreign',
+  'freeze', 'from', 'full', 'grant', 'group', 'having', 'ilike', 'in', 'initially',
+  'inner', 'intersect', 'into', 'is', 'isnull', 'join', 'leading', 'left', 'like',
+  'limit', 'localtime', 'localtimestamp', 'natural', 'not', 'notnull', 'null',
+  'offset', 'on', 'only', 'or', 'order', 'outer', 'overlaps', 'placing', 'primary',
+  'references', 'right', 'select', 'session_user', 'similar', 'some', 'symmetric',
+  'table', 'then', 'to', 'trailing', 'true', 'union', 'unique', 'user', 'using',
+  'verbose', 'when', 'where', 'with'
+];
+
+export const isReservedWord = (word: string): boolean => {
+  return POSTGRESQL_RESERVED_WORDS.includes(word.toLowerCase());
+};
