@@ -19,12 +19,20 @@ const PostgresConnectionModal: React.FC<PostgresConnectionModalProps> = ({ onClo
     db_password: ''
   });
 
+  const validateHost = (host: string) => {
+    // Remove any prefixes like 'host:', 'http://', 'https://'
+    return host.replace(/^(host:|https?:\/\/)/i, '');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Clean the host value
+      const cleanHost = validateHost(formData.host);
+      
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError) throw authError;
       if (!user) throw new Error('Not authenticated');
@@ -41,12 +49,9 @@ const PostgresConnectionModal: React.FC<PostgresConnectionModalProps> = ({ onClo
       const { error: insertError } = await supabase
         .from('database_auth_settings')
         .insert([{
-          connection_name: formData.connection_name,
-          host: formData.host,
+          ...formData,
+          host: cleanHost, // Use the cleaned host value
           port: formData.port || '5432',
-          db_name: formData.db_name,
-          db_username: formData.db_username,
-          db_password: formData.db_password,
           accounts_id: userAccount.account_id
         }]);
 
