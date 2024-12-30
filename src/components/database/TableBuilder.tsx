@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { createDatabaseTable } from '../../services/api/database';
-import { isReservedWord } from '../../utils/database';
+import { isValidTableName, isReservedWord } from '../../utils/database';
+import { supabase } from '../../services/supabaseClient';
 
 interface TableBuilderProps {
   onClose: () => void;
@@ -10,11 +11,32 @@ interface TableBuilderProps {
 }
 
 const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableCreated }) => {
+  const [accountId, setAccountId] = useState<string>('');
   const [tableName, setTableName] = useState('');
   const [fields, setFields] = useState([
     { name: '', type: 'text', required: false }
   ]);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch account ID when component mounts
+    const fetchAccountId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: userAccount } = await supabase
+        .from('user_accounts')
+        .select('account_id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (userAccount) {
+        setAccountId(`${userAccount.account_id}_`);
+      }
+    };
+
+    fetchAccountId();
+  }, []);
 
   const fieldTypes = [
     'text',
@@ -43,6 +65,18 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Remove any spaces or special characters from table name
+    const cleanTableName = tableName.trim().replace(/[^a-zA-Z0-9_]/g, '_');
+    
+    // Validate the table name without the account ID prefix
+    if (!isValidTableName(cleanTableName)) {
+      setError('Invalid table name. Please start with a letter and use only letters, numbers, and underscores.');
+      return;
+    }
+    
+    // Combine account ID and table name after validation
+    const fullTableName = `${accountId}${cleanTableName}`;
+    
     // Validate field names for reserved words before creating table
     const reservedWordFields = fields.filter(field => isReservedWord(field.name));
     
@@ -52,7 +86,7 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
       return;
     }
 
-    await handleCreateTable(tableName, fields);
+    await handleCreateTable(fullTableName, fields);
     onClose();
   };
 
@@ -71,15 +105,6 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
         }
       }
     }
-  };
-
-  const handleTableNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.includes(' ')) {
-      alert('Spaces are not allowed in table names');
-      return;
-    }
-    setTableName(value);
   };
 
   const handleFieldNameChange = (index: number, value: string) => {
@@ -108,16 +133,35 @@ const TableBuilder: React.FC<TableBuilderProps> = ({ onClose, onSubmit, onTableC
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Table Name
-            </label>
-            <input
-              type="text"
-              value={tableName}
-              onChange={handleTableNameChange}
-              className="w-full border rounded-lg px-3 py-2"
-              required
-            />
+            <div className="flex gap-4">
+              <div className="w-1/3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Account ID
+                </label>
+                <input
+                  type="text"
+                  value={accountId}
+                  className="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-500"
+                  placeholder="Prefix"
+                  required
+                  readOnly
+                />
+              </div>
+
+              <div className="w-2/3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Table Name
+                </label>
+                <input
+                  type="text"
+                  value={tableName}
+                  onChange={(e) => setTableName(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="Enter table name"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4">
