@@ -213,3 +213,26 @@
 .animate-float-2 {
   animation: float-2 8s ease-in-out infinite;
 }
+
+/* Add these styles */
+.guideline {
+  position: absolute;
+  pointer-events: none;
+  background-color: #3b82f6;
+  opacity: 0.5;
+  z-index: 9999;
+}
+
+.guideline-vertical {
+  width: 1px;
+  top: 0;
+  bottom: 0;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+.guideline-horizontal {
+  height: 1px;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}

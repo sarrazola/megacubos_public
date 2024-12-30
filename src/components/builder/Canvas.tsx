@@ -4,6 +4,8 @@ import { useCanvasStore } from '../../store/useCanvasStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import DraggableComponent from './DraggableComponent';
 import { getDefaultSize } from '../../utils/componentSizes';
+import { useGuidelinesStore } from '../../store/useGuidelinesStore';
+import Guidelines from './Guidelines';
 
 const getDefaultProperties = (type: string) => {
   switch (type) {
@@ -82,6 +84,80 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
     };
   };
 
+  const calculateGuidelines = (currentPosition: { x: number; y: number }) => {
+    const { setGuidelines } = useGuidelinesStore.getState();
+    const verticalLines: number[] = [];
+    const horizontalLines: number[] = [];
+    
+    // Get all component positions
+    components.forEach((comp) => {
+      // Vertical alignments
+      verticalLines.push(comp.position.x); // Left edge
+      verticalLines.push(comp.position.x + comp.size.width); // Right edge
+      verticalLines.push(comp.position.x + comp.size.width / 2); // Center
+
+      // Horizontal alignments
+      horizontalLines.push(comp.position.y); // Top edge
+      horizontalLines.push(comp.position.y + comp.size.height); // Bottom edge
+      horizontalLines.push(comp.position.y + comp.size.height / 2); // Center
+    });
+
+    // Add canvas edges as guidelines
+    if (canvasRef.current) {
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      verticalLines.push(0);
+      verticalLines.push(canvasRect.width);
+      verticalLines.push(canvasRect.width / 2);
+      horizontalLines.push(0);
+      horizontalLines.push(canvasRect.height);
+      horizontalLines.push(canvasRect.height / 2);
+    }
+
+    // Consolidate nearby guidelines (within 5px of each other)
+    const consolidateLines = (lines: number[]): number[] => {
+      const sortedLines = [...new Set(lines)].sort((a, b) => a - b);
+      const consolidated: number[] = [];
+      let currentGroup: number[] = [];
+
+      sortedLines.forEach((line) => {
+        if (currentGroup.length === 0) {
+          currentGroup.push(line);
+        } else {
+          const lastLine = currentGroup[currentGroup.length - 1];
+          if (Math.abs(line - lastLine) <= 5) {
+            currentGroup.push(line);
+          } else {
+            // Average the current group and start a new one
+            consolidated.push(currentGroup.reduce((a, b) => a + b) / currentGroup.length);
+            currentGroup = [line];
+          }
+        }
+      });
+
+      // Don't forget the last group
+      if (currentGroup.length > 0) {
+        consolidated.push(currentGroup.reduce((a, b) => a + b) / currentGroup.length);
+      }
+
+      return consolidated;
+    };
+
+    const consolidatedVertical = consolidateLines(verticalLines);
+    const consolidatedHorizontal = consolidateLines(horizontalLines);
+
+    // Filter guidelines within snap range (e.g., 10px)
+    const snapRange = 10;
+    const filteredVertical = consolidatedVertical.filter(
+      (line) => Math.abs(line - currentPosition.x) <= snapRange
+    );
+    const filteredHorizontal = consolidatedHorizontal.filter(
+      (line) => Math.abs(line - currentPosition.y) <= snapRange
+    );
+
+    console.log('Setting guidelines:', { vertical: filteredVertical, horizontal: filteredHorizontal });
+    setGuidelines({ vertical: filteredVertical, horizontal: filteredHorizontal });
+  };
+
   useEffect(() => {
     if (currentCanvasId) {
       initializeCanvas(currentCanvasId).catch(err => {
@@ -101,6 +177,19 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'MOVE_COMPONENT'],
+    hover: (item: { type: string; id?: string }, monitor) => {
+      console.log('Hovering with item:', item);
+      const offset = monitor.getClientOffset();
+      if (!offset || !canvasRef.current) return;
+
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      const currentPosition = {
+        x: offset.x - canvasRect.left,
+        y: offset.y - canvasRect.top,
+      };
+      console.log('Current position:', currentPosition);
+      calculateGuidelines(currentPosition);
+    },
     drop: (item: { type: string; id?: string }, monitor) => {
       const offset = monitor.getClientOffset();
       if (!offset || !currentCanvasId || !canvasRef.current) return;
@@ -148,6 +237,7 @@ const Canvas: React.FC<{ isEditorMode: boolean }> = ({ isEditorMode }) => {
         isOver ? 'border-blue-500' : 'border-gray-200'
       } bg-gray-50`}
     >
+      {isEditorMode && <Guidelines />}
       {components.length === 0 && isEditorMode && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center space-y-6">
