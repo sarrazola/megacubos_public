@@ -9,35 +9,36 @@ interface TableField {
 
 export const createDatabaseTable = async (tableName: string, fields: TableField[]) => {
   try {
+    const normalizedName = normalizeTableName(tableName);
+
     // First check if table already exists in master_tables
     const { data: existingTable, error: checkError } = await supabase
       .from('master_tables')
       .select('table_name')
-      .ilike('table_name', tableName)
+      .ilike('table_name', normalizedName)
       .limit(1);
 
     if (checkError) throw checkError;
 
     if (existingTable?.length) {
-      throw new Error(`A table named "${tableName}" already exists.`);
+      throw new Error(`A table named "${normalizedName}" already exists.`);
     }
 
-    const normalizedName = normalizeTableName(tableName);
-
     // First try to add to master_tables
-    await addToMasterTables(tableName);
+    await addToMasterTables(normalizedName);
 
     // Then create the actual table
+    // Note: We're using double quotes to properly handle the table name
     const query = `
-      CREATE TABLE ${normalizedName} (
+      CREATE TABLE "${normalizedName}" (
         id BIGSERIAL PRIMARY KEY,
         ${fields.map(field =>
-          `${field.name} ${getSqlType(field.type)}${field.required ? ' NOT NULL' : ''}`
+          `"${field.name.toLowerCase()}" ${getSqlType(field.type)}${field.required ? ' NOT NULL' : ''}`
         ).join(',\n        ')}
       );
     `;
 
-    // Execute the query using normalized name
+    // Execute the query
     const { data, error } = await supabase.rpc('create_table', {
       table_query: query
     });
@@ -47,7 +48,7 @@ export const createDatabaseTable = async (tableName: string, fields: TableField[
       await supabase
         .from('master_tables')
         .delete()
-        .match({ table_name: tableName });
+        .match({ table_name: normalizedName });
       throw error;
     }
 
