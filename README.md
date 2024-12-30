@@ -84,6 +84,17 @@ Megacubos is a powerful low-code platform designed for enterprises to build inte
    - status (bool)
    - company_id (int8, references accounts.id)
 
+6. **database_auth_settings**
+   - id (int8, primary key)
+   - created_at (timestamptz)
+   - accounts_id (int8, references accounts.id)
+   - connection_name (text)
+   - host (text)
+   - port (text)
+   - db_name (text)
+   - db_username (text)
+   - db_password (text)
+
 ### Environment Variables
 VITE_SUPABASE_URL=
 VITE_SUPABASE_KEY=
