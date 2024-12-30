@@ -5,6 +5,7 @@ import DatabaseTable from '../components/database/DatabaseTable';
 import { createDatabaseTable, checkTableExists, addToMasterTables, fetchTables, deleteTable, renameTable } from '../services/api/database';
 import DeleteTableModal from '../components/database/DeleteTableModal';
 import RenameTableModal from '../components/database/RenameTableModal';
+import PostgresConnections from '../components/database/PostgresConnections';
 
 interface ResourceCard {
   id: string;
@@ -22,6 +23,7 @@ const Resources = () => {
   const [tableToDelete, setTableToDelete] = useState<string | null>(null);
   const [tableToRename, setTableToRename] = useState<string | null>(null);
   const [newTableName, setNewTableName] = useState('');
+  const [showPostgresView, setShowPostgresView] = useState(false);
 
   useEffect(() => {
     window.history.pushState({ page: 'resources' }, '');
@@ -88,6 +90,8 @@ const Resources = () => {
         console.error('Error fetching tables:', error);
         alert('Failed to fetch tables');
       }
+    } else if (resourceId === 'postgres') {
+      setShowPostgresView(true);
     }
   };
 
@@ -276,6 +280,14 @@ const Resources = () => {
           />
         )}
       </div>
+    );
+  }
+
+  if (showPostgresView) {
+    return (
+      <PostgresConnections
+        onBack={() => setShowPostgresView(false)}
+      />
     );
   }
 
