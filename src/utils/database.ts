@@ -3,7 +3,8 @@
  * Used for actual database operations
  */
 export const normalizeTableName = (tableName: string): string => {
-  return tableName.toLowerCase();
+  // Replace any invalid characters with underscores and convert to lowercase
+  return tableName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 };
 
 /**
@@ -21,8 +22,7 @@ export const getDisplayTableName = async (tableName: string): Promise<string> =>
  * Used before table creation
  */
 export const isValidTableName = (tableName: string): boolean => {
-  // Only allow alphanumeric characters and underscores
-  // Must start with a letter
+  // Allow alphanumeric characters and underscores, but must start with a letter
   const validPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
   return validPattern.test(tableName);
 };
