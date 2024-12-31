@@ -122,7 +122,7 @@
 
 .database-table-container {
   @apply fixed top-0 bottom-0 right-0 bg-white z-10;
-  left: 16rem; /* 256px / 16 = 16rem */
+  left: 12rem; /* Changed from 16rem to 12rem to match new sidebar width */
 }
 
 @media (max-width: 768px) {

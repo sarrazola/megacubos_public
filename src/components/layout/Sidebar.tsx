@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { PanelLeft, Settings, Database, LayoutDashboard, Users, Code, ChevronRight, User, MoreVertical, Copy, Trash2, Pencil, Check, X, LogOut } from 'lucide-react';
+import { PanelLeft, Settings, Database, LayoutDashboard, Users, Code, ChevronRight, User, MoreVertical, Copy, Trash2, Pencil, Check, X, LogOut, Menu } from 'lucide-react';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { fetchUsers } from '../../services/api/users';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../services/supabaseClient';
+import { useSidebarStore } from '../../store/useSidebarStore';
 
 const Sidebar = () => {
   const { currentPage, setCurrentPage } = usePageStore();
@@ -20,13 +21,13 @@ const Sidebar = () => {
   } = useCanvasesStore();
 
   const { initializeCanvas } = useCanvasStore();
+  const { isCollapsed, toggleCollapsed } = useSidebarStore();
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
   const [editingCanvasId, setEditingCanvasId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { signOut, user } = useAuth();
 
@@ -157,54 +158,62 @@ const Sidebar = () => {
 
   return (
     <>
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 rounded-lg text-white"
-      >
-        <PanelLeft className="h-5 w-5" />
-      </button>
-
       <div className={`
-        w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 p-4 flex flex-col
-        transition-transform duration-300 ease-in-out z-40
+        ${isCollapsed ? 'w-16' : 'w-48'} 
+        bg-gray-900 text-white h-screen fixed left-0 top-0 p-3 flex flex-col
+        transition-all duration-300 ease-in-out z-40
         ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}
         md:translate-x-0
       `}>
-        <div className="flex items-center gap-2 mb-8">
-          <img 
-            src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/megacubos-dark.png" 
-            alt="Megacubos Logo" 
-            className="h-6 w-6"
-          />
-          <span className="text-xl font-bold">Megacubos</span>
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={toggleCollapsed}
+            className="p-1.5 hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Menu className="h-4 w-4 text-gray-400 hover:text-gray-200" />
+          </button>
+          {!isCollapsed && (
+            <>
+              <img 
+                src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/megacubos-dark.png" 
+                alt="Megacubos Logo" 
+                className="h-5 w-5"
+              />
+              <span className="text-base font-bold">Megacubos</span>
+            </>
+          )}
         </div>
         
         <nav className="flex-1">
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {getMenuItems().map((item) => (
               <li key={item.id}>
                 <button
-                  className={`flex items-center gap-3 p-2 w-full hover:bg-gray-800 rounded-lg transition-colors ${
+                  className={`flex items-center gap-2 p-1.5 w-full hover:bg-gray-800 rounded-lg transition-colors text-sm ${
                     currentPage === item.id ? 'bg-gray-800' : ''
                   }`}
                   onClick={() => setCurrentPage(item.id)}
                 >
                   {item.icon}
-                  <span className="flex-1 text-left">{item.label}</span>
-                  {item.hasSubMenu && <ChevronRight className="h-4 w-4" />}
+                  {!isCollapsed && (
+                    <>
+                      <span className="flex-1 text-left text-sm">{item.label}</span>
+                      {item.hasSubMenu && <ChevronRight className="h-3 w-3" />}
+                    </>
+                  )}
                 </button>
-                {item.hasSubMenu && currentPage === item.id && (
-                  <ul className="ml-4 mt-2 space-y-1">
+                {!isCollapsed && item.hasSubMenu && currentPage === item.id && (
+                  <ul className="ml-2 mt-1 space-y-0.5">
                     {canvases.map((canvas) => (
                       <li key={canvas.id}>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <button
-                            className={`flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors text-sm ${
+                            className={`flex-1 p-1.5 hover:bg-gray-800 rounded-lg transition-colors text-xs ${
                               currentCanvasId === canvas.id ? 'bg-gray-800' : ''
                             }`}
                             onClick={() => handleCanvasSelect(canvas.id)}
                           >
-                            {canvas.name}
+                            <span className="block truncate text-left">{canvas.name}</span>
                           </button>
                           {currentUser?.role === 'creator' && (
                             <div className="relative canvas-menu">
@@ -216,10 +225,10 @@ const Sidebar = () => {
                                 }}
                                 className="p-1 text-gray-400 hover:text-gray-200 rounded"
                               >
-                                <MoreVertical className="h-4 w-4" />
+                                <MoreVertical className="h-3 w-3" />
                               </button>
                               {openMenu === canvas.id && (
-                                <div className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg py-1 z-50">
+                                <div className="absolute right-0 mt-1 w-40 bg-gray-800 rounded-lg shadow-lg py-1 z-50">
                                   {editingCanvasId === canvas.id ? (
                                     <div className="px-4 py-2 space-y-2">
                                       <input
@@ -305,20 +314,28 @@ const Sidebar = () => {
         </nav>
 
         {currentUser && (
-          <div className="relative mt-auto pt-4 border-t border-gray-700 user-menu">
+          <div className="relative mt-auto pt-3 border-t border-gray-700 user-menu">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="w-full flex items-center gap-3 hover:bg-gray-800 p-2 rounded-lg transition-colors"
+              className="w-full flex items-center gap-2 hover:bg-gray-800 p-1.5 rounded-lg transition-colors text-sm"
             >
-              <div className="p-2 bg-gray-800 rounded-full">
-                <User className="h-5 w-5" />
+              <div className="p-1.5 bg-gray-800 rounded-full">
+                <User className="h-3 w-3" />
               </div>
-              <span className="font-medium flex-1 text-left">{currentUser.name}</span>
-              <ChevronRight className={`h-4 w-4 transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
+              {!isCollapsed && (
+                <>
+                  <span className="font-medium flex-1 text-left truncate">{currentUser.name}</span>
+                  <ChevronRight className={`h-3 w-3 transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
+                </>
+              )}
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute bottom-full left-0 w-full mb-2 bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-700">
+              <div className={`
+                absolute ${isCollapsed ? 'left-16' : 'left-0'} bottom-full 
+                w-40 mb-2 bg-gray-800 rounded-lg shadow-lg py-1 
+                border border-gray-700 z-50
+              `}>
                 {currentUser.role === 'creator' && (
                   <button
                     onClick={() => handleUserMenuClick('settings')}
