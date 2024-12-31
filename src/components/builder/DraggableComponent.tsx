@@ -26,6 +26,7 @@ import 'react-resizable/css/styles.css';
 import MapComponent from './components/MapComponent';
 import CalendarComponent from './components/CalendarComponent/CalendarComponent';
 import { useGuidelinesStore } from '../../store/useGuidelinesStore';
+import KanbanComponent from './components/KanbanComponent/index';
 
 interface DraggableComponentProps {
   component: any;
@@ -338,6 +339,18 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           />
         );
 
+      case 'kanban':
+        return (
+          <div className="bg-white h-full rounded-lg">
+            <KanbanComponent
+              data={component.properties?.data || []}
+              columnField={component.properties?.columnField || 'status'}
+              titleField={component.properties?.titleField || 'name'}
+              descriptionField={component.properties?.descriptionField || 'description'}
+            />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -384,7 +397,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
           component.type === 'button' ? 32 : (component.type === 'scorecard' ? 120 : 100)
         ]}
         maxConstraints={[
-          component.type === 'table' ? 2000 : 800,
+          component.type === 'table' || component.type === 'kanban' ? 2000 : 800,
           1600
         ]}
         className="canvas-component"

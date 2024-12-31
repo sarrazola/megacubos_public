@@ -55,6 +55,38 @@ const getDefaultProperties = (type: string) => {
         events: [],
         viewType: 'day'
       };
+    case 'kanban':
+      return {
+        data: [
+          {
+            id: 1,
+            name: 'Acme Corp Deal',
+            description: 'Enterprise software license',
+            status: 'Lead',
+            value: 50000,
+            contact: 'John Doe'
+          },
+          {
+            id: 2,
+            name: 'TechStart Project',
+            description: 'Custom development project',
+            status: 'Negotiation',
+            value: 25000,
+            contact: 'Jane Smith'
+          },
+          {
+            id: 3,
+            name: 'Global Systems Contract',
+            description: 'Annual maintenance contract',
+            status: 'Proposal',
+            value: 75000,
+            contact: 'Mike Johnson'
+          }
+        ],
+        columnField: 'status',
+        titleField: 'name',
+        descriptionField: 'description'
+      };
     default:
       return {};
   }
