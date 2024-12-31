@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Database, ArrowLeft, Plus, Table2 } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
+import ExternalTableView from './ExternalTableView';
 
 interface ExternalPostgresTablesProps {
   connection: {
@@ -19,6 +20,7 @@ const ExternalPostgresTables: React.FC<ExternalPostgresTablesProps> = ({ connect
   const [tables, setTables] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
   useEffect(() => {
     loadTables();
@@ -58,6 +60,16 @@ const ExternalPostgresTables: React.FC<ExternalPostgresTablesProps> = ({ connect
     }
   };
 
+  if (selectedTable) {
+    return (
+      <ExternalTableView
+        connection={connection}
+        tableName={selectedTable}
+        onBack={() => setSelectedTable(null)}
+      />
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -96,7 +108,8 @@ const ExternalPostgresTables: React.FC<ExternalPostgresTablesProps> = ({ connect
           {tables.map((table) => (
             <div
               key={table}
-              className="bg-white rounded-lg shadow-lg p-6"
+              className="bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow"
+              onClick={() => setSelectedTable(table)}
             >
               <div className="flex items-center gap-3">
                 <Table2 className="h-5 w-5 text-blue-500" />
@@ -110,4 +123,4 @@ const ExternalPostgresTables: React.FC<ExternalPostgresTablesProps> = ({ connect
   );
 };
 
-export default ExternalPostgresTables; 
+export default ExternalPostgresTables;
