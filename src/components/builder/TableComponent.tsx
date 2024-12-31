@@ -7,6 +7,10 @@ import { useRowDetailsStore } from '../../store/useRowDetailsStore';
 interface TableComponentProps {
   data: any[];
   pageSize?: number;
+  columnVisibility?: Record<string, boolean>;
+  showActions?: boolean;
+  actionColumnLabel?: string;
+  actionButtonLabel?: string;
 }
 
 interface SortConfig {
@@ -17,6 +21,10 @@ interface SortConfig {
 const TableComponent: React.FC<TableComponentProps> = ({
   data,
   pageSize = 50,
+  columnVisibility = {},
+  showActions = true,
+  actionColumnLabel = 'Actions',
+  actionButtonLabel = 'View',
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -25,6 +33,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
   });
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { setSelectedRow } = useRowDetailsStore();
+
+  // Get visible columns
+  const getVisibleColumns = () => {
+    if (!data[0]) return [];
+    return Object.keys(data[0]).filter(column => columnVisibility[column] !== false);
+  };
+
+  const visibleColumns = getVisibleColumns();
 
   const handleSort = (key: string) => {
     setSortConfig((prevConfig) => ({
@@ -84,7 +100,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="sticky top-0 bg-white z-10">
             <tr className="[&>th:first-child]:rounded-tl-lg [&>th:last-child]:rounded-tr-lg">
-              {currentData[0] && Object.keys(currentData[0]).map((header) => (
+              {visibleColumns.map((header) => (
                 <th
                   key={header}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 border-x border-gray-200"
@@ -100,9 +116,11 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   </div>
                 </th>
               ))}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-x border-gray-200">
-                Actions
-              </th>
+              {showActions && (
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-x border-gray-200">
+                  {actionColumnLabel}
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -118,34 +136,36 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   onMouseEnter={() => handleRowMouseEnter(rowKey, row)}
                   onMouseLeave={handleRowMouseLeave}
                 >
-                  {Object.values(row).map((cell: any, i: number) => (
+                  {visibleColumns.map((columnName) => (
                     <td 
-                      key={`${rowKey}-col-${i}`} 
+                      key={`${rowKey}-col-${columnName}`} 
                       className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                     >
-                      {cell}
+                      {row[columnName]}
                     </td>
                   ))}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        className="text-blue-600 hover:text-blue-800"
-                        onClick={() => {
-                          setSelectedRow(row);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        className="text-red-600 hover:text-red-800"
-                        onClick={() => {
-                          console.log('Delete clicked for row:', row);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
+                  {showActions && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="text-blue-600 hover:text-blue-800"
+                          onClick={() => {
+                            setSelectedRow(row);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          className="text-red-600 hover:text-red-800"
+                          onClick={() => {
+                            console.log('Delete clicked for row:', row);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               );
             })}

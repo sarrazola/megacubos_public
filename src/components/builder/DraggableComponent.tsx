@@ -229,6 +229,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ component, isEd
               actionColumnLabel={component.properties.actionColumnLabel}
               actionButtonLabel={component.properties.actionButtonLabel}
               pageSize={component.properties.pageSize}
+              columnVisibility={component.properties.columnVisibility}
             />
           </div>
         );
