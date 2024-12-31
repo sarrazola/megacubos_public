@@ -13,6 +13,7 @@ import PDFProperties from './components/PDFComponent/properties';
 import ImageProperties from './components/ImageComponent/properties';
 import MapProperties from './components/MapComponent/properties';
 import CalendarProperties from './components/CalendarComponent/properties';
+import KanbanProperties from './components/KanbanComponent/properties';
 
 const PropertiesPanel = () => {
   const { components, selectedComponent, selectComponent } = useCanvasStore();
@@ -41,6 +42,8 @@ const PropertiesPanel = () => {
         return <ImageProperties component={component} />;
       case 'map':
         return <MapProperties component={component} />;
+      case 'kanban':
+        return <KanbanProperties component={component} />;
       default:
         return null;
     }
