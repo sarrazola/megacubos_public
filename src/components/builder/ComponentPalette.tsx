@@ -31,12 +31,12 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, lab
   return (
     <div
       ref={drag}
-      className={`flex items-center gap-2 p-3 bg-white rounded-lg cursor-move border ${
+      className={`flex items-center gap-1.5 p-3 bg-white rounded-lg cursor-move border text-sm ${
         isDragging ? 'opacity-50' : ''
       }`}
     >
       {icon}
-      <span>{label}</span>
+      <span className="truncate">{label}</span>
     </div>
   );
 };
@@ -44,25 +44,24 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, lab
 const ComponentPalette = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const components = [
-    { type: 'table', icon: <Table2 className="h-5 w-5" />, label: 'Table' },
-    { type: 'chart', icon: <BarChart3 className="h-5 w-5" />, label: 'Chart' },
-    { type: 'text', icon: <Type className="h-5 w-5" />, label: 'Text' },
-    { type: 'scorecard', icon: <Layout className="h-5 w-5" />, label: 'Scorecard' },
-    { type: 'button', icon: <Square className="h-5 w-5" />, label: 'Button' },
-    { type: 'pdf', icon: <FileText className="h-5 w-5" />, label: 'PDF Viewer' },
-    { type: 'image', icon: <Image className="h-5 w-5" />, label: 'Image' },
-    { type: 'map', icon: <Map className="h-5 w-5" />, label: 'Map' },
-    { type: 'calendar', icon: <Calendar className="h-5 w-5" />, label: 'Calendar' },
+    { type: 'table', icon: <Table2 className="h-4 w-4" />, label: 'Table' },
+    { type: 'chart', icon: <BarChart3 className="h-4 w-4" />, label: 'Chart' },
+    { type: 'text', icon: <Type className="h-4 w-4" />, label: 'Text' },
+    { type: 'scorecard', icon: <Layout className="h-4 w-4" />, label: 'Scorecard' },
+    { type: 'button', icon: <Square className="h-4 w-4" />, label: 'Button' },
+    { type: 'pdf', icon: <FileText className="h-4 w-4" />, label: 'PDF' },
+    { type: 'image', icon: <Image className="h-4 w-4" />, label: 'Image' },
+    { type: 'map', icon: <Map className="h-4 w-4" />, label: 'Map' },
+    { type: 'calendar', icon: <Calendar className="h-4 w-4" />, label: 'Calendar' },
   ];
 
   return (
     <>
-      {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="md:hidden fixed top-4 right-4 z-30 p-2 bg-white rounded-lg shadow-lg"
       >
-        <ChevronRight className={`h-5 w-5 transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
+        <ChevronRight className={`h-4 w-4 transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
       </button>
 
       <div className={`
@@ -70,25 +69,17 @@ const ComponentPalette = () => {
         transition-transform duration-300 ease-in-out
         ${isCollapsed ? 'translate-x-full' : 'translate-x-0'}
         md:translate-x-0 md:relative md:h-auto md:shadow-none
-        w-full
+        w-32
       `}>
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Components</h2>
-          <div className="space-y-2">
+        <div className="p-0">
+          <h2 className="text-lg font-semibold mb-3 px-1">Components</h2>
+          <div className="space-y-1">
             {components.map((component) => (
               <DraggableComponent key={component.type} {...component} />
             ))}
           </div>
         </div>
       </div>
-
-      {/* Overlay for mobile */}
-      {!isCollapsed && (
-        <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10"
-          onClick={() => setIsCollapsed(true)}
-        />
-      )}
     </>
   );
 };
