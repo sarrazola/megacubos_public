@@ -136,11 +136,11 @@ const Builder = () => {
       <div className="flex h-[calc(100vh-4rem)]">
         <CustomDragLayer />
         {isEditorMode && userRole === 'creator' && (
-          <div className="hidden md:block w-64 p-4">
+          <div className="hidden md:block w-32 p-2">
             <ComponentPalette />
           </div>
         )}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-4">
           <Canvas isEditorMode={isEditorMode && userRole === 'creator' && window.innerWidth >= 768} />
         </div>
         {isEditorMode && selectedComponent && userRole === 'creator' && (
