@@ -3,6 +3,7 @@ import { useCanvasStore } from '../../../../store/useCanvasStore';
 import { useCanvasesStore } from '../../../../store/useCanvasesStore';
 import { fetchTables } from '../../../../services/api/database';
 import { getTableData } from '../../../../services/api/database';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface TablePropertiesProps {
   component: any;
@@ -15,6 +16,20 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
   const [jsonData, setJsonData] = useState(component.properties.data || []);
   const [availableTables, setAvailableTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Initialize column visibility from properties or default all to visible
+  const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>(() => {
+    if (component.properties.columnVisibility) {
+      return component.properties.columnVisibility;
+    }
+    const initialVisibility: Record<string, boolean> = {};
+    if (component.properties.data?.[0]) {
+      Object.keys(component.properties.data[0]).forEach(column => {
+        initialVisibility[column] = true;
+      });
+    }
+    return initialVisibility;
+  });
 
   useEffect(() => {
     loadAvailableTables();
@@ -29,13 +44,19 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
     }
   };
 
+  const updateProperties = (updates: Record<string, any>) => {
+    if (!selectedComponent || !currentCanvasId) return;
+    updateComponentProperties(currentCanvasId, selectedComponent, updates);
+  };
+
   useEffect(() => {
     if (dataSource !== 'json') {
       loadTableData(dataSource);
     } else {
-      updateComponentProperties(currentCanvasId, selectedComponent, {
+      updateProperties({
         data: jsonData,
-        dataSource: 'json'
+        dataSource: 'json',
+        columnVisibility
       });
     }
   }, [dataSource]);
@@ -44,9 +65,20 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
     try {
       setLoading(true);
       const tableData = await getTableData(tableName);
-      updateComponentProperties(currentCanvasId, selectedComponent, {
+      
+      // Initialize visibility for new columns
+      const newColumnVisibility = { ...columnVisibility };
+      Object.keys(tableData[0] || {}).forEach(column => {
+        if (newColumnVisibility[column] === undefined) {
+          newColumnVisibility[column] = true;
+        }
+      });
+      setColumnVisibility(newColumnVisibility);
+
+      updateProperties({
         data: tableData,
-        dataSource: tableName
+        dataSource: tableName,
+        columnVisibility: newColumnVisibility
       });
     } catch (error) {
       console.error('Error loading table data:', error);
@@ -60,13 +92,42 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
     try {
       const data = JSON.parse(value);
       setJsonData(data);
-      updateComponentProperties(currentCanvasId, selectedComponent, { 
+      
+      // Initialize visibility for new columns
+      const newColumnVisibility = { ...columnVisibility };
+      Object.keys(data[0] || {}).forEach(column => {
+        if (newColumnVisibility[column] === undefined) {
+          newColumnVisibility[column] = true;
+        }
+      });
+      setColumnVisibility(newColumnVisibility);
+
+      updateProperties({ 
         data,
-        dataSource: 'json'
+        dataSource: 'json',
+        columnVisibility: newColumnVisibility
       });
     } catch (error) {
       // Invalid JSON, ignore
     }
+  };
+
+  const toggleColumnVisibility = (columnName: string) => {
+    const newColumnVisibility = {
+      ...columnVisibility,
+      [columnName]: !columnVisibility[columnName]
+    };
+    setColumnVisibility(newColumnVisibility);
+    updateProperties({
+      columnVisibility: newColumnVisibility
+    });
+  };
+
+  const getColumnNames = () => {
+    if (component.properties.data?.[0]) {
+      return Object.keys(component.properties.data[0]);
+    }
+    return [];
   };
 
   return (
@@ -78,11 +139,31 @@ const TableProperties: React.FC<TablePropertiesProps> = ({ component }) => {
         <input
           type="number"
           value={component.properties.pageSize || 50}
-          onChange={(e) => updateComponentProperties(currentCanvasId, selectedComponent, {
+          onChange={(e) => updateProperties({
             pageSize: parseInt(e.target.value),
           })}
           className="w-full border rounded-lg px-3 py-2"
         />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Column Visibility
+        </label>
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {getColumnNames().map(columnName => (
+            <div key={columnName} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-700">
+                {columnName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              </span>
+              <button
+                onClick={() => toggleColumnVisibility(columnName)}
+                className={`p-1 rounded-lg ${columnVisibility[columnName] ? 'text-blue-600 hover:text-blue-700' : 'text-gray-400 hover:text-gray-500'}`}
+              >
+                {columnVisibility[columnName] ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
