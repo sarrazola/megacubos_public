@@ -14,11 +14,13 @@ import { usePageStore } from './store/usePageStore';
 import OnboardingWrapper from './components/layout/OnboardingWrapper';
 import RowDetailsPanel from './components/common/RowDetailsPanel';
 import { supabase } from './services/supabaseClient';
+import { useSidebarStore } from './store/useSidebarStore';
 
 function AppContent() {
   const { user, loading } = useAuth();
   const currentPage = usePageStore((state) => state.currentPage);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const { isCollapsed } = useSidebarStore();
 
   useEffect(() => {
     const loadAuthenticatedUser = async () => {
@@ -62,7 +64,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="md:ml-64 transition-all duration-300">
+      <div className={`transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-48'}`}>
         <Header />
         <main className="pt-16">
           {isRestrictedPage(currentPage) ? (

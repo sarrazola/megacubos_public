@@ -4,8 +4,10 @@ import { useEditorStore } from '../../store/useEditorStore';
 import { usePageStore } from '../../store/usePageStore';
 import { useCanvasesStore } from '../../store/useCanvasesStore';
 import { supabase } from '../../services/supabaseClient';
+import { useSidebarStore } from '../../store/useSidebarStore';
 
 const Header = () => {
+  const { isCollapsed } = useSidebarStore();
   const { isEditorMode, toggleEditorMode } = useEditorStore();
   const { currentPage } = usePageStore();
   const { addCanvas } = useCanvasesStore();
@@ -39,12 +41,12 @@ const Header = () => {
 
   if (currentPage !== 'dashboard') {
     return (
-      <header className="h-16 bg-white border-b fixed top-0 right-0 left-64 px-6 flex items-center justify-between z-10" />
+      <header className={`h-16 bg-white border-b fixed top-0 right-0 ${isCollapsed ? 'left-16' : 'left-48'} px-6 flex items-center justify-between z-10 transition-all duration-300`} />
     );
   }
 
   return (
-    <header className="fixed top-0 right-0 left-0 md:left-64 h-16 bg-white border-b z-30">
+    <header className={`fixed top-0 right-0 ${isCollapsed ? 'left-16' : 'left-48'} h-16 bg-white border-b z-30 transition-all duration-300`}>
       <div className="h-full px-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           {currentUser?.role === 'creator' && (
