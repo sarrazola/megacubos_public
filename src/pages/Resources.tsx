@@ -66,6 +66,34 @@ const Resources = () => {
       type: 'database',
     },
     {
+      id: 'mongodb',
+      name: 'MongoDB',
+      icon: <img src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Resources%20logos/2945120.webp" alt="MongoDB" className="h-8 w-8" />,
+      description: 'NoSQL document database',
+      type: 'database',
+      comingSoon: true,
+    },
+    {
+      id: 'mysql',
+      name: 'MySQL',
+      icon: <img src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Resources%20logos/logo396.png" alt="MySQL" className="h-8 w-8" />,
+      description: 'Open-source SQL database',
+      type: 'database',
+      comingSoon: true,
+    },
+    {
+      id: 'googlesheets',
+      name: 'Google Sheets',
+      icon: <img 
+        src="https://mvkcdelawgnlxqqsjboh.supabase.co/storage/v1/object/public/static_content/Resources%20logos/Google_Sheets_2020_Logo.svg.png" 
+        alt="Google Sheets" 
+        className="h-8 w-auto object-contain" 
+      />,
+      description: 'Spreadsheet integration',
+      type: 'api',
+      comingSoon: true,
+    },
+    {
       id: 'rest',
       name: 'REST API',
       icon: <Globe2 className="h-8 w-8 text-purple-500" />,
