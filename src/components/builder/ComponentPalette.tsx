@@ -31,12 +31,21 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({ type, icon, lab
   return (
     <div
       ref={drag}
-      className={`flex items-center gap-1.5 p-3 bg-white rounded-lg cursor-move border text-sm ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      className={`
+        flex items-center gap-1.5 p-3 
+        bg-white rounded-lg cursor-move border 
+        text-sm transition-all duration-200
+        hover:border-blue-500 hover:bg-blue-50/50 
+        hover:shadow-sm hover:shadow-blue-100
+        ${isDragging ? 'opacity-50' : ''}
+      `}
     >
-      {icon}
-      <span className="truncate">{label}</span>
+      <div className="text-gray-600 group-hover:text-blue-600 transition-colors">
+        {icon}
+      </div>
+      <span className="truncate text-gray-700 group-hover:text-blue-700">
+        {label}
+      </span>
     </div>
   );
 };
