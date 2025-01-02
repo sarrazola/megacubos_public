@@ -1,0 +1,378 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[submodule]
+	active = .
+[remote "origin"]
+	url = https://github.com/sarrazola/megacubos_public.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
+	vscode-merge-base = origin/main
+[lfs]
+	repositoryformatversion = 0
+[branch "brach_prueba"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/brach_prueba
+[branch "refactors"]
+	vscode-merge-base = origin/main
+[branch "smoother-drag-and-drop"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/smoother-drag-and-drop
+[branch "margin-outside-canvas-fix"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/margin-outside-canvas-fix
+[branch "outside-margings"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/outside-margings
+[branch "remove-resizes-when-unnecesary"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/remove-resizes-when-unnecesary
+[branch "map-component"]
+	vscode-merge-base = origin/main
+[branch "button-enhancer"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/button-enhancer
+[branch "scorecard-logo"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/scorecard-logo
+[branch "hide-border-when-in-hide-mode"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/hide-border-when-in-hide-mode
+[branch "delete-cimpnent-with-key-deleted"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/delete-cimpnent-with-key-deleted
+[branch "map-component-try"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/map-component-try
+[branch "add-favicon"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/add-favicon
+[branch "pdf-preview-changed"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/pdf-preview-changed
+[branch "databases-creator"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/databases-creator
+[branch "google-sheets-integration-try"]
+	vscode-merge-base = origin/main
+[branch "persist-canvas-elements"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/persist-canvas-elements
+[branch "seudo-responsive"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/seudo-responsive
+[branch "enhacencements-in-resourcers-editing-process"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/enhacencements-in-resourcers-editing-process
+[branch "detailed-enhancements-database-editing"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/detailed-enhancements-database-editing
+[branch "other-add-funciontalities-database-editing"]
+	vscode-merge-base = origin/main
+[branch "no-data-available-enhacement"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/no-data-available-enhacement
+[branch "table-deletion-feature"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/table-deletion-feature
+[branch "rename-tables-database"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/rename-tables-database
+[branch "delete-row-functionality"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/delete-row-functionality
+[branch "fine-tuning-navigation-and-info-resources"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/fine-tuning-navigation-and-info-resources
+[branch "other-enhacenements-data-builder"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/other-enhacenements-data-builder
+[branch "rest-api-integration"]
+	vscode-merge-base = origin/main
+[branch "api-rest-test"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/api-rest-test
+[branch "authentication-initial-part"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/authentication-initial-part
+[branch "beutiful-login-page"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/beutiful-login-page
+[branch "logout-on-user-options"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/logout-on-user-options
+[branch "animation-canvas"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/animation-canvas
+[branch "enhancements-settings-and-others"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/enhancements-settings-and-others
+[branch "logic-account-users-companies"]
+	vscode-merge-base = origin/main
+[branch "accounts-connecting"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/accounts-connecting
+[branch "users-connected"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/users-connected
+[branch "bug-fix"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/bug-fix
+[branch "only-my-data-to-show"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/only-my-data-to-show
+[branch "company_creation"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/company_creation
+[branch "per-customer-canvas"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/per-customer-canvas
+[branch "canvas-persisting-names-and-deleting"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/canvas-persisting-names-and-deleting
+[branch "bug-in-login"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/bug-in-login
+[branch "bug-onboarding-2"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/bug-onboarding-2
+[branch "fix-create-new-canvas"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/fix-create-new-canvas
+[branch "fix-onboardding-appearance"]
+	vscode-merge-base = origin/fix-create-new-canvas
+	remote = origin
+	merge = refs/heads/fix-onboardding-appearance
+[branch "table-component-widht"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/table-component-widht
+[branch "bug-on-new-users-table-creation"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/bug-on-new-users-table-creation
+[branch "table-hide-columns"]
+	vscode-merge-base = origin/main
+[branch "prueba_jairo"]
+	remote = origin
+	merge = refs/heads/prueba_jairo
+	vscode-merge-base = origin/main
+[branch "usetiful"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/usetiful
+[branch "restrictions_in_table_name_creation"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/restrictions_in_table_name_creation
+[branch "new-things-demo"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/new-things-demo
+[branch "row-selection"]
+	vscode-merge-base = origin/main
+[branch "edit-row-in-table"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/edit-row-in-table
+[branch "view-functionality"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/view-functionality
+[branch "view-row-enhanced"]
+	vscode-merge-base = origin/main
+[branch "view-actions-entabled-ontable-component"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/view-actions-entabled-ontable-component
+[branch "edit-register-on-side-panel"]
+	vscode-merge-base = origin/main
+[branch "intento-de-edit-button-2"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/intento-de-edit-button-2
+[branch "calendar-component"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/calendar-component
+[branch "duplicate-working"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/duplicate-working
+[branch "display-email-correctly-users"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/display-email-correctly-users
+[branch "add-users-working"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/add-users-working
+[branch "users-table-error"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/users-table-error
+[branch "add-files"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/add-files
+[branch "authentication-propertly"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/authentication-propertly
+[branch "permissions"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/permissions
+[branch "more-permissions-based"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/more-permissions-based
+[branch "even-more-permissions"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/even-more-permissions
+[branch "loading-dashboard-animation"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/loading-dashboard-animation
+[branch "white-background-when-live-mode"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/white-background-when-live-mode
+[branch "bug-duplicated-canvas-component"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/bug-duplicated-canvas-component
+[branch "enhancements-table-component"]
+	vscode-merge-base = origin/main
+[branch "enhancements-table-various"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/enhancements-table-various
+[branch "header-fix"]
+	vscode-merge-base = origin/main
+[branch "header-fix2"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/header-fix2
+[branch "table-component-fixed"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/table-component-fixed
+[branch "border-gray-table"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/border-gray-table
+[branch "canvas-size-and-constrains"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/canvas-size-and-constrains
+[branch "pdf-placeholder"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/pdf-placeholder
+[branch "guide-lines-editor-mode"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/guide-lines-editor-mode
+[branch "error-capturing-database"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/error-capturing-database
+[branch "database_table_name_sufix"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/database_table_name_sufix
+[branch "postgre-sql-integration"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/postgre-sql-integration
+[branch "create-soon-label"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/create-soon-label
+[branch "add-readme-update-db"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/add-readme-update-db
+[branch "posgresql_new_branch_enhacements"]
+	vscode-merge-base = origin/main
+[branch "posgre-db-list-yes"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/posgre-db-list-yes
+[branch "posgresql_table_visualization"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/posgresql_table_visualization
+[branch "logo-new-resources"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/logo-new-resources
+[branch "components-column-reshaped"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/components-column-reshaped
+[branch "side-bar-width"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/side-bar-width
+[branch "canva-component"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/canva-component
+[branch "column-hide-enhancer"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/column-hide-enhancer
+[branch "table-to-source"]
+	vscode-merge-base = origin/main
+[branch "deepseek-integration"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/deepseek-integration

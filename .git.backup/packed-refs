@@ -1,0 +1,6 @@
+# pack-refs with: peeled fully-peeled sorted 
+e7077c00e01b9ea3cc002fde87228a92992a519e refs/remotes/origin/main
+d3aeaf0bdad3a7a1bd4215422fcb67ba982e5bb0 refs/remotes/origin/sarrazola/changes
+25e6161899ab07d0bafa2e9011515b97a1113555 refs/remotes/origin/test
+c022a302799808119e7ffff2395a933685f4a635 refs/remotes/origin/test2
+052023f81b0566c2df2597674c54fb5d48ac0a80 refs/remotes/origin/test5
