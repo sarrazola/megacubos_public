@@ -98,6 +98,8 @@ Megacubos is a powerful low-code platform designed for enterprises to build inte
 ### Environment Variables
 VITE_SUPABASE_URL=
 VITE_SUPABASE_KEY=
+VITE_DEEPSEEK_API_NAME=
+VITE_DEEPSEEK_API_KEY=
 
 
 ## Technology Stack
