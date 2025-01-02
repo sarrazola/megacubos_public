@@ -22,21 +22,25 @@ export interface CanvasComponent {
 interface CanvasStore {
   components: Record<string, CanvasComponent[]>;
   selectedComponent: string | null;
-  initializeCanvas: (canvasId: string) => Promise<void>;
-  addComponent: (canvasId: string, component: CanvasComponent) => void;
-  updateComponentPosition: (canvasId: string, id: string, position: ComponentPosition) => void;
-  updateComponentSize: (canvasId: string, id: string, size: ComponentSize) => void;
-  removeComponent: (canvasId: string, id: string) => void;
-  duplicateComponent: (canvasId: string, id: string) => void;
+  canvases: Record<string, { components: CanvasComponent[] }>;
+  setSelectedComponent: (id: string | null) => void;
   selectComponent: (id: string | null) => void;
   updateComponentProperties: (canvasId: string, id: string, properties: Record<string, any>) => void;
+  updateComponentPosition: (canvasId: string, id: string, position: ComponentPosition) => void;
+  updateComponentSize: (canvasId: string, id: string, size: ComponentSize) => void;
+  addComponent: (canvasId: string, component: CanvasComponent) => void;
   clearState: () => void;
+  getComponentProperties: (canvasId: string, componentId: string) => Record<string, any> | null;
+  removeComponent: (canvasId: string, id: string) => void;
+  duplicateComponent: (canvasId: string, id: string) => void;
+  initializeCanvas: (canvasId: string) => Promise<void>;
 }
 
-export const useCanvasStore = create<CanvasStore>((set) => ({
+export const useCanvasStore = create<CanvasStore>((set, get) => ({
   components: {},
   selectedComponent: null,
-  
+  canvases: {},
+
   initializeCanvas: async (canvasId: string) => {
     try {
       // Clear existing components for this canvas
@@ -59,27 +63,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     }
   },
 
-  addComponent: async (canvasId, component) => {
-    set((state) => {
-      const newComponents = [...(state.components[canvasId] || []), component];
-      const newState = {
-        components: {
-          ...state.components,
-          [canvasId]: newComponents,
-        },
-        selectedComponent: component.id,
-      };
-      
-      // Save to database
-      saveCanvasComponents(canvasId, newComponents);
-      
-      return newState;
-    });
-  },
-
   updateComponentPosition: (canvasId, id, position) =>
     set((state) => {
-      const newComponents = (state.components[canvasId] || []).map((comp) =>
+      const newComponents = (state.components[canvasId] || []).map((comp: CanvasComponent) =>
         comp.id === id ? { ...comp, position } : comp
       );
       
@@ -90,33 +76,22 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
         },
       };
       
-      // Save to database
       saveCanvasComponents(canvasId, newComponents);
       
       return newState;
     }),
 
-  updateComponentSize: (canvasId, id, size) =>
-    set((state) => {
-      const newComponents = (state.components[canvasId] || []).map((comp) =>
-        comp.id === id ? { ...comp, size } : comp
-      );
-      
-      const newState = {
-        components: {
-          ...state.components,
-          [canvasId]: newComponents,
-        },
-      };
-      
-      saveCanvasComponents(canvasId, newComponents);
-      
-      return newState;
-    }),
+  setSelectedComponent: (id) => set({
+    selectedComponent: id
+  }),
+
+  selectComponent: (id) => set({
+    selectedComponent: id
+  }),
 
   removeComponent: (canvasId, id) =>
     set((state) => {
-      const newComponents = (state.components[canvasId] || []).filter((comp) => comp.id !== id);
+      const newComponents = (state.components[canvasId] || []).filter((comp: CanvasComponent) => comp.id !== id);
       
       const newState = {
         components: {
@@ -133,7 +108,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
 
   duplicateComponent: (canvasId, id) =>
     set((state) => {
-      const componentToDuplicate = state.components[canvasId]?.find((comp) => comp.id === id);
+      const componentToDuplicate = state.components[canvasId]?.find((comp: CanvasComponent) => comp.id === id);
       if (!componentToDuplicate) return state;
 
       const newComponent = {
@@ -155,18 +130,64 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
         selectedComponent: newComponent.id,
       };
       
-      // Save to database
       saveCanvasComponents(canvasId, newComponents);
       
       return newState;
     }),
 
-  selectComponent: (id) => set({ selectedComponent: id }),
-
-  updateComponentProperties: (canvasId, id, properties) =>
+  updateComponentProperties: (canvasId, id, properties) => {
     set((state) => {
-      const newComponents = (state.components[canvasId] || []).map((comp) =>
+      const newComponents = (state.components[canvasId] || []).map((comp: CanvasComponent) =>
         comp.id === id ? { ...comp, properties: { ...comp.properties, ...properties } } : comp
+      );
+      
+      const newState = {
+        components: {
+          ...state.components,
+          [canvasId]: newComponents,
+        },
+      };
+      
+      saveCanvasComponents(canvasId, newComponents);
+      
+      return newState;
+    });
+  },
+
+  clearState: () => set({
+    components: {},
+    selectedComponent: null
+  }),
+
+  getComponentProperties: (canvasId: string, componentId: string) => {
+    console.log('Getting properties for:', { canvasId, componentId });
+    const state = get();
+    console.log('Current state:', state);
+    
+    const canvasComponents = state.components[canvasId];
+    console.log('Canvas components:', canvasComponents);
+    
+    if (!canvasComponents) {
+      console.log('No components found for canvas:', canvasId);
+      return null;
+    }
+    
+    const component = canvasComponents.find((c: CanvasComponent) => c.id === componentId);
+    console.log('Found component:', component);
+    
+    if (!component) {
+      console.log('Component not found:', componentId);
+      return null;
+    }
+    
+    console.log('Returning properties:', component.properties);
+    return component.properties;
+  },
+
+  updateComponentSize: (canvasId, id, size) =>
+    set((state) => {
+      const newComponents = (state.components[canvasId] || []).map((comp: CanvasComponent) =>
+        comp.id === id ? { ...comp, size } : comp
       );
       
       const newState = {
@@ -181,8 +202,20 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       return newState;
     }),
 
-  clearState: () => set({
-    components: {},
-    selectedComponent: null
-  }),
+  addComponent: (canvasId, component) =>
+    set((state) => {
+      const newComponents = [...(state.components[canvasId] || []), component];
+      
+      const newState = {
+        components: {
+          ...state.components,
+          [canvasId]: newComponents,
+        },
+        selectedComponent: component.id,
+      };
+      
+      saveCanvasComponents(canvasId, newComponents);
+      
+      return newState;
+    }),
 }));
