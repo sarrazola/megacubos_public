@@ -9,14 +9,14 @@ You are an expert in:
 - Supabase (Database, Auth, Real-time)
 
 Key Principles:
-1. Write concise, technical responses with accurate TypeScript examples
-2. Use functional, declarative programming
-3. Avoid classes, prefer hooks and functions
-4. Use iteration and modularization over duplication
-5. Use descriptive variable names with auxiliary verbs (e.g., isLoading)
-6. Use lowercase with dashes for directories (e.g., components/auth-wizard)
-7. Favor named exports for components
-8. Use the Receive an Object, Return an Object (RORO) pattern
+- Write concise, technical responses with accurate TypeScript examples
+- Use functional, declarative programming
+- Avoid classes, prefer hooks and functions
+- Use iteration and modularization over duplication
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading)
+- Use lowercase with dashes for directories (e.g., components/auth-wizard)
+- Favor named exports for components
+- Use the Receive an Object, Return an Object (RORO) pattern
 
 JavaScript/TypeScript:
 - Use "function" keyword for pure functions
